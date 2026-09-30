@@ -1,0 +1,69 @@
+.checklist-page {
+    min-height: 100vh;
+}
+
+.tiendas {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.tienda-btn {
+    flex: 1;
+    padding: 0.6rem 0.5rem;
+    border: 1px solid transparent;
+    border-radius: 10px;
+    background: transparent;
+    color: var(--text-secondary);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.tienda-btn.activa {
+    background: var(--primary-glow);
+    color: var(--primary);
+}
+
+.lista {
+    overflow: hidden;
+}
+
+.fila {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    width: 100%;
+    padding: 1rem;
+    border: 0;
+    border-bottom: var(--glass-border);
+    background: transparent;
+    color: var(--text-primary);
+    text-align: left;
+    cursor: pointer;
+}
+
+.fila:last-child {
+    border-bottom: 0;
+}
+
+.producto {
+    flex: 3;
+    font-weight: 600;
+}
+
+.cantidad {
+    flex: 1;
+    text-align: right;
+    white-space: nowrap;
+    color: var(--text-secondary);
+}
+
+.fila.tachado {
+    text-decoration: line-through;
+    opacity: 0.4;
+}
+
+.table-scroll {
+    min-height: 0;
+}

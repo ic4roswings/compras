@@ -1,0 +1,556 @@
+@use 'bootstrap/scss/bootstrap';
+@import "./assets/styles/vars.css";
+
+$theme-colors: (
+    "primary": #D7282F,
+    "secondary": #41555F,
+    "tertiary": #0095A9,
+    "success": #BABB13,
+    "warning": #ffc409,
+    "danger": #CF0A2C,
+    "dark": #0a0b0d,
+    "medium": #41555F,
+    "light": #E6E6E6,
+);
+
+/* Reset and Global Styles */
+body {
+    background-color: var(--bg-color);
+    color: var(--text-primary);
+    font-family: 'Inter', 'Segoe UI', Roboto, sans-serif;
+    margin: 0;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    transition: background-color var(--transition-normal);
+    height: 100vh;
+    /* Full height for fixed layout */
+    overflow: hidden;
+    /* Prevent body scroll */
+}
+
+/* Layout Utilities for Fixed Scroll */
+.page-layout {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.scroll-content {
+    flex: 1;
+    overflow: hidden;
+    /* Container doesn't scroll, children do */
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    padding-bottom: 0 !important;
+    /* Allow table to touch bottom */
+}
+
+.table-scroll {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    /* Prevent horizontal body scroll */
+    padding-bottom: 80px;
+    /* Space for FAB */
+}
+
+.table-responsive {
+    overflow: visible !important;
+    /* Let table-scroll handle overflow */
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-color);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--surface-accent);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--text-muted);
+}
+
+/* Selection */
+::selection {
+    background-color: var(--primary-glow);
+    color: var(--text-primary);
+}
+
+
+/* Component Enhancements */
+.card {
+    background-color: var(--surface-color) !important;
+    border: var(--glass-border) !important;
+    backdrop-filter: var(--glass-blur);
+    border-radius: 12px !important;
+    color: var(--text-primary) !important;
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast) !important;
+    cursor: pointer !important;
+    box-shadow: var(--shadow-sm);
+
+    &:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-md);
+        background-color: var(--surface-accent) !important;
+    }
+}
+
+.fas {
+    cursor: pointer !important;
+    transition: color var(--transition-fast);
+}
+
+/* Modernization for Tables */
+table {
+    border-collapse: separate !important;
+    border-spacing: 0 4px !important;
+    color: var(--text-primary) !important;
+    background-color: transparent !important;
+}
+
+.table {
+    --bs-table-bg: transparent !important;
+    --bs-table-color: var(--text-primary) !important;
+    --bs-table-border-color: var(--border-color) !important;
+    --bs-table-hover-bg: hsla(0, 0%, 100%, 0.05) !important;
+}
+
+thead th {
+    background-color: var(--surface-accent) !important;
+    color: var(--text-muted) !important;
+    font-weight: 600 !important;
+    text-transform: uppercase !important;
+    font-size: 0.75rem !important;
+    letter-spacing: 1px !important;
+    padding: 1.25rem 1.5rem !important;
+    border: none !important;
+}
+
+td {
+    padding: 1.25rem 1.5rem !important;
+    background-color: var(--surface-glass) !important;
+    border-top: 1px solid var(--border-color) !important;
+    border-bottom: 1px solid var(--border-color) !important;
+    color: var(--text-primary) !important;
+
+    &:first-child {
+        border-left: 1px solid var(--border-color) !important;
+        border-top-left-radius: 12px !important;
+        border-bottom-left-radius: 12px !important;
+    }
+
+    &:last-child {
+        border-right: 1px solid var(--border-color) !important;
+        border-top-right-radius: 12px !important;
+        border-bottom-right-radius: 12px !important;
+    }
+}
+
+tr:hover td {
+    background-color: var(--surface-accent) !important;
+    color: var(--text-primary) !important;
+}
+
+/* Common Controls */
+.qty-input {
+    width: 85px !important;
+    background: var(--surface-color) !important;
+    border: 1px solid var(--border-color) !important;
+    border-radius: 8px !important;
+    color: var(--text-primary) !important;
+    padding: 5px !important;
+    text-align: center !important;
+    transition: border-color var(--transition-fast) !important;
+
+    &:focus {
+        outline: none !important;
+        border-color: var(--primary) !important;
+        box-shadow: 0 0 0 4px var(--primary-glow) !important;
+    }
+}
+
+/* Modal and SweetAlert2 Modernization */
+.swal2-popup {
+    background: var(--surface-color) !important;
+    color: var(--text-primary) !important;
+    border: var(--glass-border) !important;
+    backdrop-filter: var(--glass-blur);
+}
+
+.swal2-title,
+.swal2-html-container {
+    color: var(--text-primary) !important;
+}
+
+.swal2-styled.swal2-confirm {
+    background-color: var(--primary) !important;
+    border-radius: 8px !important;
+    box-shadow: 0 4px 12px var(--primary-glow) !important;
+}
+
+.swal2-styled.swal2-confirm:focus {
+    box-shadow: 0 0 0 3px var(--primary-glow) !important;
+}
+
+.swal2-styled.swal2-cancel {
+    background-color: var(--secondary) !important;
+    border-radius: 8px !important;
+}
+
+.swal2-styled.swal2-cancel:focus {
+    box-shadow: 0 0 0 3px rgba(65, 85, 95, 0.5) !important;
+}
+
+/* Layout Stacking & Glass Effects */
+.glass-card {
+    background: var(--surface-accent) !important;
+    backdrop-filter: var(--glass-blur) !important;
+    -webkit-backdrop-filter: var(--glass-blur) !important;
+    border: var(--glass-border) !important;
+    border-radius: 20px !important;
+    box-shadow: var(--shadow-md) !important;
+}
+
+.header-card {
+    position: relative !important;
+    z-index: 20 !important;
+    padding: 1.5rem 2rem !important;
+    user-select: none !important;
+}
+
+.btn,
+.btn-action,
+.nav-link,
+.navbar-brand {
+    user-select: none !important;
+    cursor: pointer !important;
+}
+
+.table-container {
+    position: relative !important;
+    z-index: 10 !important;
+    padding: 0 1rem !important;
+}
+
+.glass-dropdown {
+    z-index: 1100 !important;
+    background: var(--surface-glass) !important;
+    backdrop-filter: var(--glass-blur) !important;
+    -webkit-backdrop-filter: var(--glass-blur) !important;
+    border: var(--glass-border) !important;
+    border-radius: 12px !important;
+    box-shadow: var(--shadow-lg) !important;
+    width: max-content !important;
+    min-width: 100% !important;
+    max-width: 400px !important;
+    overflow-x: hidden !important;
+    user-select: none !important;
+    cursor: default !important;
+}
+
+.dropdown-item {
+    cursor: pointer !important;
+    white-space: nowrap !important;
+    padding: 10px 20px !important;
+}
+
+.dropdown-item:hover {
+    background: var(--surface-accent) !important;
+    color: var(--text-primary) !important;
+}
+
+/* Standard Action Buttons */
+.btn-action {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition-fast) !important;
+    background: var(--surface-accent);
+    color: var(--text-primary);
+}
+
+.btn-action:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.2);
+}
+
+.btn-action.primary {
+    background: hsla(357, 68%, 50%, 0.1) !important;
+    color: var(--primary) !important;
+}
+
+.btn-action.secondary {
+    background: hsla(198, 19%, 31%, 0.1) !important;
+    color: var(--secondary) !important;
+}
+
+.btn-action.info {
+    background: hsla(187, 100%, 33%, 0.1) !important;
+    color: var(--tertiary) !important;
+}
+
+.btn-action.danger {
+    background: hsla(350, 90%, 43%, 0.1) !important;
+    color: #ff4d4d !important;
+}
+
+/* Store Badges */
+.badge-store {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.badge-store[data-store="Walmart"] {
+    background: hsla(198, 100%, 40%, 0.15);
+    color: #0071ce;
+}
+
+.badge-store[data-store="Mandado"] {
+    background: hsla(120, 100%, 40%, 0.15);
+    color: #28a745;
+}
+
+.badge-store[data-store="Carnes"] {
+    background: hsla(45, 100%, 50%, 0.15);
+    color: #ffc107;
+}
+
+.badge-store[data-store="Costco"] {
+    background: hsla(0, 90%, 43%, 0.15);
+    color: #dc3545;
+}
+
+/* Global Page Titles & Icons */
+.page-title {
+    background: linear-gradient(180deg, var(--text-primary), var(--text-secondary));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-size: 1.75rem;
+    font-weight: 800;
+    margin: 0;
+    display: flex;
+    align-items: center;
+}
+
+.page-title i,
+.page-title fa-icon,
+.brand-icon {
+    background: linear-gradient(180deg, var(--text-primary), var(--text-secondary));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: inline-block;
+}
+
+/* FAB Container */
+.fab-container {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    left: auto;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column-reverse;
+    /* Main button at bottom */
+    align-items: flex-end;
+    /* Align to right */
+    gap: 16px;
+}
+
+/* Main Toggle Button */
+.fab-main {
+    width: 65px;
+    height: 65px;
+    border-radius: 50%;
+    background: var(--primary);
+    color: white;
+    border: none;
+    box-shadow: 0 4px 15px var(--primary-glow);
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    z-index: 2;
+}
+
+.fab-main:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px var(--primary-glow);
+}
+
+.fab-main.active {
+    background: var(--surface-card);
+    color: var(--text-primary);
+    transform: rotate(90deg);
+}
+
+/* Actions Menu */
+.fab-actions {
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 12px;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(20px) scale(0.8);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    margin-bottom: 5px;
+    margin-left: 5px;
+    /* Center with main button slightly */
+}
+
+.fab-actions.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0) scale(1);
+}
+
+/* Individual Action Item */
+.fab-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-direction: row;
+    /* Label left, Icon/Button right */
+}
+
+.fab-label {
+    background: var(--surface-card);
+    color: var(--text-primary);
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    box-shadow: var(--shadow-sm);
+    white-space: nowrap;
+    opacity: 0;
+    transform: translateX(-10px);
+    transition: all 0.2s ease;
+    pointer-events: none;
+}
+
+.fab-actions.show .fab-label {
+    opacity: 1;
+    transform: translateX(0);
+    transition-delay: 0.1s;
+}
+
+/* Mini Action Buttons */
+.fab-btn {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    box-shadow: var(--shadow-md);
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.fab-btn:hover {
+    transform: scale(1.1);
+}
+
+.fab-btn.primary {
+    background: var(--primary);
+    color: white;
+}
+
+.fab-btn.secondary {
+    background: var(--surface-card);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+}
+
+.fab-btn.info {
+    background: var(--surface-accent);
+    color: var(--text-primary);
+}
+
+/* Search Expandable */
+.search-item {
+    position: relative;
+}
+
+.search-expandable {
+    position: absolute;
+    right: 55px;
+    /* Left of the button */
+    left: auto;
+    bottom: 0;
+    width: 0;
+    height: 45px;
+    background: var(--surface-card);
+    border-radius: 25px;
+    overflow: hidden;
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: var(--shadow-md);
+    display: flex;
+    align-items: center;
+}
+
+.search-expandable.expanded {
+    width: 250px;
+    padding-right: 15px;
+    /* Space for the input end */
+    border: 1px solid var(--border-color);
+}
+
+.fab-search-input {
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    border: none;
+    padding: 0 20px;
+    color: var(--text-primary);
+    outline: none;
+    font-size: 0.95rem;
+}
+
+/* Dropup overrides */
+.dropup .dropdown-menu {
+    bottom: 100% !important;
+    top: auto !important;
+    margin-bottom: 10px;
+    left: 0;
+}
+
+/* Spinner Modern */
+.spinner-modern {
+    width: 50px;
+    height: 50px;
+    border: 5px solid rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    border-top-color: var(--primary);
+    animation: spin 1s ease-in-out infinite;
+    display: inline-block;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}

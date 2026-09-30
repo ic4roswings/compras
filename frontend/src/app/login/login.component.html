@@ -1,0 +1,22 @@
+
+<section class="login">
+  <div class="login_box">
+    <div class="left">
+      <div class="top_link"><a href="/"> <i class="fa-solid fa-arrow-left-long"></i> </a> </div>
+      <div class="contact">
+        <form [formGroup]="loginForm" (ngSubmit)="onLogin(loginForm.value)">
+          <h3>Iniciar Sesión</h3>
+          <input type="text" formControlName="username" placeholder="Usuario">
+          <input type="password" formControlName="password" placeholder="Password">
+          <button class="submit">Login</button>
+          @if (errorStatus) {
+            <div class='alert alert-danger' ><p>{{errorMsj}}</p></div>
+          }
+        </form>
+      </div>
+
+    </div>
+
+  </div>
+
+</section>

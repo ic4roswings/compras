@@ -1,0 +1,118 @@
+.pendientes-page {
+    min-height: 100vh;
+    background: radial-gradient(circle at top left, hsla(187, 100%, 33%, 0.05), transparent 400px),
+        radial-gradient(circle at bottom right, hsla(357, 68%, 50%, 0.05), transparent 400px);
+}
+
+/* Glass Card and Page background handled globally */
+
+.header-card {
+    padding: 1.5rem 2rem;
+}
+
+.page-title {
+    font-size: 1.75rem;
+    font-weight: 800;
+    margin: 0;
+    background: linear-gradient(45deg, var(--text-primary), var(--text-secondary));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.search-box {
+    position: relative;
+    display: flex;
+    align-items: center;
+    background: var(--surface-color);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    width: 350px;
+}
+
+.search-box .form-control {
+    background: transparent;
+    border: none;
+    color: var(--text-primary);
+    padding: 10px 15px;
+}
+
+.modern-btn-primary {
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 12px;
+    font-weight: 600;
+}
+
+/* Table Container Enhancements */
+.table-container {
+    padding: 0 1rem;
+}
+
+.modern-table {
+    margin: 1rem 0 !important;
+}
+
+.product-name {
+    font-weight: 500;
+    font-size: 1.1rem;
+}
+
+/* Check Button */
+.check-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 2px solid var(--border-color);
+    background: transparent;
+    color: transparent;
+    transition: all var(--transition-fast);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modern-tr:hover .check-btn {
+    border-color: var(--text-muted);
+    color: var(--text-muted);
+}
+
+.check-btn:hover {
+    background: var(--success) !important;
+    border-color: var(--success) !important;
+    color: white !important;
+    transform: scale(1.1);
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.5s ease-out forwards;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.spinner-modern {
+    width: 40px;
+    height: 40px;
+    border: 3px solid var(--border-color);
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}

@@ -1,0 +1,1 @@
+sudo docker compose down && sudo docker build -t chepe_server . && sudo docker compose up -d

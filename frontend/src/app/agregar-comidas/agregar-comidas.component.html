@@ -1,0 +1,132 @@
+@if (!isModal) {
+  <app-cabecera></app-cabecera>
+
+  <section class="agregar-comidas-page animate-fade-in">
+    <div class="container py-5">
+      <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+
+          <div class="glass-card p-4 p-md-5">
+            <div class="text-center mb-4">
+              <h1 class="page-title">
+                <i class="fa-solid fa-utensils me-2"></i>
+                {{ isEditing ? 'Editar Comida' : 'Agregar a Comida' }}
+              </h1>
+              <p class="text-muted">Asignar producto a una preparación</p>
+            </div>
+            <ng-container *ngTemplateOutlet="formTemplate"></ng-container>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+} @else {
+  <!-- Modal Version -->
+  <div class="modal fade" id="comidaModal" #comidaModal tabindex="-1" aria-hidden="true" data-bs-backdrop="static"
+    data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content glass-modal border-0">
+        <div class="modal-header">
+          <h5 class="modal-title">
+            <i class="fa-solid fa-utensils me-2 text-primary"></i>
+            {{ isEditing ? 'Editar Comida' : 'Agregar a Comida' }}
+          </h5>
+          <button type="button" class="btn-close btn-close-white" (click)="close()" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-4">
+          <ng-container *ngTemplateOutlet="formTemplate"></ng-container>
+        </div>
+      </div>
+    </div>
+  </div>
+}
+
+<ng-template #formTemplate>
+  @if ((appState$ | async); as appState) {
+    @switch (appState.dataState) {
+      @case (DataState.LOADING_STATE) {
+        <div class="text-center p-5">
+          <div class="spinner-modern"></div>
+        </div>
+      }
+      @case (DataState.LOADED_STATE) {
+        <form #productoForm="ngForm" (ngSubmit)="actualizaProducto(productoForm)" class="modern-form">
+          <div class="row g-4">
+
+            <!-- Product Name (Readonly style) -->
+            <div class="col-12">
+              <label class="form-label text-muted small uppercase font-weight-bold">Producto</label>
+              <div class="modern-input-readonly">
+                {{ appState.appData.producto.nombre }}
+              </div>
+              <input type="hidden" [(ngModel)]="appState.appData.producto.nombre" name="nombre">
+            </div>
+
+            @if (isEditing) {
+              <input type="hidden" [(ngModel)]="comida" name="comida">
+            }
+
+            <!-- Meal Selection -->
+            @if (!isEditing) {
+              <div class="col-12">
+                <label class="form-label text-muted small uppercase font-weight-bold">Seleccionar Comida</label>
+                <div class="select-group">
+                  <select class="form-select modern-input mb-3" [(ngModel)]="comida" name="comida" required>
+                    <option value="" disabled>Selecciona una comida existente</option>
+                    @for (c of comidas; track c) {
+                      <option [value]="c.comida">{{ c.comida }}</option>
+                    }
+                  </select>
+                  <div class="text-center my-2 text-muted small">o escribe una nueva</div>
+                  <input [(ngModel)]="comidaSeleccionada" type="text" class="form-control modern-input" name="comida_nueva"
+                    placeholder="Escribe el nombre de la comida" (ngModelChange)="comida = ''">
+                </div>
+              </div>
+            }
+
+            <!-- Quantity & Units -->
+            <div class="col-6">
+              <label class="form-label text-muted small uppercase font-weight-bold">Cantidad</label>
+              <input [(ngModel)]="appState.appData.cantidad" type="number" class="form-control modern-input" name="cantidad"
+                required>
+            </div>
+
+            <div class="col-6">
+              <label class="form-label text-muted small uppercase font-weight-bold">Unidad</label>
+              <select class="form-select modern-input" [(ngModel)]="appState.appData.unidades" name="unidades">
+                <option value="PZ">PZ</option>
+                <option value="KG">KG</option>
+                <option value="G">G</option>
+                <option value="Paquete">Paquete</option>
+              </select>
+            </div>
+
+            <!-- Actions -->
+            <div class="col-12 d-flex gap-3 mt-4">
+              <button (click)="regresa()" type="button" class="btn glass-btn flex-grow-1">
+                Cancelar
+              </button>
+              <button type="submit" class="btn modern-btn-primary flex-grow-1" [disabled]="isLoading">
+                @if (!isLoading) {
+                  <i class="fa fa-save me-2"></i>
+                }
+                @if (isLoading) {
+                  <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                }
+                Guardar
+              </button>
+            </div>
+
+          </div>
+        </form>
+      }
+      @case (DataState.ERROR_STATE) {
+        <div class="alert alert-danger glass-alert text-center">
+          <i class="fa fa-exclamation-triangle me-2"></i>
+          {{ appState.error }}
+        </div>
+      }
+    }
+  }
+</ng-template>

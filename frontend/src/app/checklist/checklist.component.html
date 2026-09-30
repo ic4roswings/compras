@@ -1,0 +1,43 @@
+<section class="page-layout checklist-page animate-fade-in">
+  <app-cabecera></app-cabecera>
+
+  <div class="scroll-content">
+    <div class="container h-100 d-flex flex-column py-3">
+
+      <div class="glass-card mb-3 p-2 tiendas flex-shrink-0">
+        @for (t of tiendas; track t) {
+        <button type="button" class="tienda-btn" [class.activa]="t === tienda()" (click)="cambiarTienda(t)">
+          {{ t }}
+        </button>
+        }
+      </div>
+
+      <div class="table-scroll">
+      @if (loading()) {
+      <div class="glass-card p-5 text-center">
+        <div class="spinner-modern"></div>
+        <p class="mt-3 text-muted">Cargando encargos...</p>
+      </div>
+      } @else if (error()) {
+      <div class="glass-card p-4 text-center">
+        <div class="alert alert-danger glass-alert mb-3">{{ error() }}</div>
+        <button type="button" class="btn modern-btn-secondary" (click)="cargar()">Reintentar</button>
+      </div>
+      } @else {
+      <div class="progreso text-secondary small mb-2">{{ hechos() }} de {{ total() }}</div>
+
+      <div class="glass-card lista">
+        @for (item of items(); track item.id) {
+        <button type="button" class="fila" [class.tachado]="estaTachado(item.id!)" (click)="tachar(item.id!)">
+          <span class="producto">{{ item.producto?.nombre }}</span>
+          <span class="cantidad">{{ item.cantidad }} {{ item.unidades }}</span>
+        </button>
+        } @empty {
+        <p class="p-5 text-center text-muted mb-0">No hay encargos de {{ tienda() }}.</p>
+        }
+      </div>
+      }
+      </div>
+    </div>
+  </div>
+</section>

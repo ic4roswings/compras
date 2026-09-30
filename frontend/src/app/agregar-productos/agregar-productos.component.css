@@ -1,0 +1,101 @@
+/* Modal Styling */
+.glass-modal {
+    background: var(--surface-glass) !important;
+    backdrop-filter: var(--glass-blur) !important;
+    -webkit-backdrop-filter: var(--glass-blur) !important;
+    border: var(--glass-border) !important;
+    box-shadow: var(--shadow-lg) !important;
+    color: var(--text-primary) !important;
+    border-radius: 24px !important;
+}
+
+.modal-header {
+    border-bottom: 1px solid var(--border-color) !important;
+    padding: 1.5rem !important;
+}
+
+.modal-footer {
+    border-top: 1px solid var(--border-color) !important;
+}
+
+.modal-title {
+    font-weight: 800;
+    letter-spacing: -0.5px;
+}
+
+.btn-close-white {
+    filter: invert(1) grayscale(100%) brightness(200%);
+}
+
+.form-label {
+    color: var(--text-secondary) !important;
+    opacity: 0.9;
+}
+
+.text-muted {
+    color: var(--text-muted) !important;
+    opacity: 0.8;
+}
+
+.uppercase {
+    text-transform: uppercase;
+}
+
+.modern-input {
+    background: var(--surface-color);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    border-radius: 12px;
+    padding: 12px 15px;
+    transition: all var(--transition-fast);
+}
+
+.modern-input:focus {
+    background: var(--surface-accent);
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px var(--primary-glow);
+    color: var(--text-primary);
+}
+
+.glass-btn {
+    background: var(--surface-accent);
+    color: var(--text-primary);
+    border: var(--glass-border);
+    padding: 12px;
+    border-radius: 12px;
+    font-weight: 600;
+}
+
+.modern-btn-primary {
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 12px;
+    font-weight: 700;
+    box-shadow: 0 4px 12px var(--primary-glow);
+}
+
+.modern-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.modern-checkbox input {
+    width: 18px;
+    height: 18px;
+    border-radius: 4px;
+    accent-color: var(--primary);
+}
+
+.flex-grow-1 {
+    flex-grow: 1;
+}
+
+.flex-grow-2 {
+    flex-grow: 2;
+}

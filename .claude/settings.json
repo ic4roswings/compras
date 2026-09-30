@@ -1,0 +1,17 @@
+{
+    "permissions": {
+        "allow": [
+            "Read",
+            "Edit",
+            "Bash(git *)",
+            "Bash(npm test)",
+            "Bash(npm run lint)"
+        ],
+        "deny": [
+            "Bash(rm -rf *)",
+            "Read(./.env)",
+            "Read(./**/*secret*)"
+        ]
+    },
+    "plansDirectory": "./.claude/plans"
+}

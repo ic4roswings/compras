@@ -1,0 +1,101 @@
+<div class="modal fade" id="productModal" #productModal tabindex="-1" aria-hidden="true" data-bs-backdrop="static"
+    data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content glass-modal border-0">
+            <form #productoForm="ngForm" (ngSubmit)="guardaProducto(productoForm)">
+                <div class="modal-header">
+                    <h5 class="modal-title font-weight-bold">
+                        <i class="fa-solid fa-box-open me-2 text-primary"></i>
+                        {{ isEditing ? 'Editar Producto' : 'Agregar Producto' }}
+                    </h5>
+                    <div class="ms-auto d-flex align-items-center gap-3">
+                        @if (isEditing && showDelete) {
+                        <button type="button" class="btn btn-link text-danger p-0" (click)="onDelete()"
+                            title="Eliminar Producto">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                        }
+                        <button type="button" class="btn-close btn-close-white ms-0" (click)="close()"
+                            aria-label="Close"></button>
+                    </div>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label text-muted small uppercase font-weight-bold">Nombre</label>
+                            <input [(ngModel)]="initialData.nombre" type="text" class="form-control modern-input w-100"
+                                name="nombre" placeholder="Nombre del producto" required>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label text-muted small uppercase font-weight-bold">Donde</label>
+                            <select class="form-select modern-input" [(ngModel)]="initialData.donde" name="donde">
+                                <option value="Walmart">Walmart</option>
+                                <option value="Mandado">Mandado</option>
+                                <option value="Carnes">Carnes</option>
+                                <option value="Costco">Costco</option>
+                            </select>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label text-muted small uppercase font-weight-bold">Cantidad</label>
+                            <input [(ngModel)]="initialData.cantidad" type="number" class="form-control modern-input"
+                                name="cantidad" placeholder="0">
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label text-muted small uppercase font-weight-bold">Unidades</label>
+                            <select class="form-select modern-input" [(ngModel)]="initialData.unidades" name="unidades">
+                                <option value="PZ">PZ</option>
+                                <option value="KG">KG</option>
+                                <option value="G">G</option>
+                                <option value="Paquete">Paquete</option>
+                            </select>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label text-muted small uppercase font-weight-bold">Medida</label>
+                            <select class="form-select modern-input" [(ngModel)]="initialData.medida" name="medida">
+                                <option value="QT">Cantidad</option>
+                                <option value="GR">Peso</option>
+                            </select>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label text-muted small uppercase font-weight-bold">UPC</label>
+                            <input [(ngModel)]="initialData.upc" type="text" class="form-control modern-input"
+                                name="upc" placeholder="-">
+                        </div>
+                        <div class="col-12">
+                            <label
+                                class="form-label text-muted small uppercase font-weight-bold d-flex justify-content-between align-items-center">
+                                URL de Referencia
+                                @if (urlError) {
+                                <span class="text-danger animate-fade-in fw-bold"
+                                    style="font-size: 0.72rem; letter-spacing: 0;">{{urlError}}</span>
+                                }
+                            </label>
+                            <input [(ngModel)]="initialData.URL" type="text" class="form-control modern-input"
+                                [class.border-danger]="urlError" name="URL" placeholder="https://...">
+                        </div>
+                        <div class="col-12 d-flex flex-wrap gap-4 py-2">
+                            <label class="modern-checkbox text-secondary">
+                                <input [(ngModel)]="initialData.semanal" name="semanal" type="checkbox">
+                                <span class="ms-2">Semanal</span>
+                            </label>
+                            <label class="modern-checkbox text-secondary">
+                                <input [(ngModel)]="initialData.mensual" name="mensual" type="checkbox">
+                                <span class="ms-2">Mensual</span>
+                            </label>
+                            <label class="modern-checkbox text-secondary">
+                                <input [(ngModel)]="initialData.verificar" name="verificar" type="checkbox">
+                                <span class="ms-2">Verificar</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn glass-btn flex-grow-1" (click)="close()">Cancelar</button>
+                    <button type="submit" class="btn modern-btn-primary px-4 flex-grow-2">
+                        {{ isEditing ? 'Actualizar Producto' : 'Guardar Producto' }}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,15 @@
+services:
+  compras_server:
+    image: compras_server:latest
+    ports:
+      - "9091:8000"
+    restart: unless-stopped
+    networks:
+      compras_network:
+        ipv4_address: 172.25.0.2 
+networks:
+  compras_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.25.0.0/24

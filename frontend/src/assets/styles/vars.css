@@ -1,0 +1,39 @@
+:root {
+  /* Core Palette */
+  --bg-color: hsl(220, 20%, 5%);
+  --surface-color: hsl(220, 20%, 10%);
+  --surface-accent: hsl(220, 20%, 15%);
+  --surface-glass: hsla(220, 20%, 10%, 0.7);
+  
+  --primary: hsl(357, 68%, 50%); /* Based on #D7282F */
+  --primary-hover: hsl(357, 68%, 60%);
+  --primary-glow: hsla(357, 68%, 50%, 0.3);
+  
+  --secondary: hsl(198, 19%, 31%); /* Based on #41555F */
+  --tertiary: hsl(187, 100%, 33%); /* Based on #0095A9 */
+  
+  --success: hsl(61, 80%, 40%); /* Based on #BABB13 */
+  --warning: hsl(45, 100%, 52%);
+  --danger: hsl(350, 90%, 43%); /* Based on #CF0A2C */
+  
+  --text-primary: hsl(0, 0%, 95%);
+  --text-secondary: hsl(220, 10%, 70%);
+  --text-muted: hsl(220, 10%, 50%);
+  
+  --border-color: hsla(0, 0%, 100%, 0.1);
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5);
+  
+  /* Transitions */
+  --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  /* Glassmorphism */
+  --glass-blur: blur(12px);
+  --glass-border: 1px solid hsla(0, 0%, 100%, 0.1);
+}
+
+[data-theme="light"] {
+  /* Light theme override if needed later, but focusing on Dark as requested */
+}

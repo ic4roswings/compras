@@ -1,0 +1,29 @@
+<nav class="navbar navbar-expand-lg navbar-dark modern-cabecera">
+    <div class="container-fluid">
+        <div class="d-flex align-items-center">
+            <a class="navbar-brand modern-brand" (click)="navigateProductos()">
+                <i class="fa-solid fa-store me-2 brand-icon"></i>
+                <span class="brand-text">Compras</span>
+            </a>
+        </div>
+        <button class="navbar-toggler modern-toggler" type="button" data-bs-toggle="collapse"
+            data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false"
+            aria-label="Toggle navigation">
+            <fa-icon [icon]="faBars" class="modern-toggler-icon"></fa-icon>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+            <div class="navbar-nav ms-auto">
+                <a (click)="navigateProductos()" class="nav-link modern-link">Productos</a>
+                <a (click)="navigateLista()" class="nav-link modern-link">Lista</a>
+                <a (click)="navigateSemanal()" class="nav-link modern-link">Listados</a>
+                <a (click)="navigateEncargado()" class="nav-link modern-link">Encargado</a>
+                <a (click)="navigateChecklist()" class="nav-link modern-link">Checklist</a>
+                <a (click)="navigateComidas()" class="nav-link modern-link">Comidas</a>
+                <a (click)="navigatePendientes()" class="nav-link modern-link">Pendientes</a>
+                <a (click)="salir()" class="nav-link modern-logout-btn">
+                    <fa-icon [icon]="faSignOutAlt" class="me-1"></fa-icon>
+                </a>
+            </div>
+        </div>
+    </div>
+</nav>

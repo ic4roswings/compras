@@ -1,0 +1,90 @@
+.modern-cabecera {
+    background: var(--surface-accent) !important;
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border-bottom: var(--glass-border);
+    padding: 0.75rem 1.5rem;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.modern-brand {
+    cursor: pointer;
+    font-weight: 800;
+    font-size: 1.2rem;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    transition: transform var(--transition-fast);
+    padding-right: 1rem;
+    border-right: 1px solid var(--border-color);
+}
+
+.modern-brand:hover {
+    transform: scale(1.02);
+}
+
+.brand-icon,
+.brand-text {
+    background: linear-gradient(180deg, var(--text-primary), var(--text-secondary));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: inline-block;
+}
+
+.brand-icon {
+    font-size: 1.5rem;
+}
+
+.brand-text {
+    font-size: 1.2rem;
+    font-weight: 800;
+    margin: 0;
+}
+
+.modern-link {
+    color: var(--text-secondary) !important;
+    font-weight: 500;
+    margin: 0 0.25rem;
+    padding: 0.5rem 1rem !important;
+    border-radius: 10px;
+    transition: all var(--transition-fast) !important;
+    cursor: pointer;
+}
+
+.modern-link:hover {
+    color: var(--text-primary) !important;
+    background: var(--surface-accent);
+}
+
+.modern-logout-btn {
+    color: var(--text-secondary) !important;
+    font-weight: 500;
+    padding: 0.5rem 1.25rem !important;
+    border-radius: 10px;
+    transition: all var(--transition-fast);
+    cursor: pointer;
+    border: 1px solid transparent;
+}
+
+.modern-logout-btn:hover {
+    color: var(--danger) !important;
+    background: hsla(350, 90%, 43%, 0.1);
+    border-color: hsla(350, 90%, 43%, 0.2);
+}
+
+.modern-toggler {
+    border: none;
+    padding: 0.5rem;
+}
+
+.modern-toggler-icon {
+    color: var(--text-primary);
+    font-size: 1.5rem;
+}
+
+.modern-toggler:focus {
+    box-shadow: none;
+}

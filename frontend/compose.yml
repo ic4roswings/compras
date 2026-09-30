@@ -1,0 +1,27 @@
+version: '3'
+services:
+  # compras_python:
+  #   image: compras_python:latest
+  #   ports:
+  #     - "8000:8000"
+  #   restart: unless-stopped
+  #   networks:
+  #     red_angular:
+  #       ipv4_address: 172.18.0.2
+
+  angular_app:
+    image: compras_angular:latest
+    ports:
+      - "80:80"
+    restart: unless-stopped
+    networks:
+      red_angular:
+        ipv4_address: 172.19.0.3
+
+networks:
+  red_angular:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.19.0.0/16

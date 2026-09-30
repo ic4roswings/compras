@@ -1,0 +1,178 @@
+<section class="page-layout lista-page animate-fade-in">
+  <app-cabecera titulo="Lista"></app-cabecera>
+
+  <div class="scroll-content">
+    <div class="container h-100 d-flex flex-column py-3">
+
+      <!-- Filters & Actions Header -->
+      <div class="flex-shrink-0 animate-slide-in header-controls">
+        <div class="glass-card mb-4 p-3">
+          <div class="row g-2 align-items-center">
+            <!-- Store Filter -->
+            <div class="col-6">
+              <div class="dropdown w-100">
+                <button
+                  class="btn modern-btn-secondary w-100 d-flex justify-content-between align-items-center p-2 px-3"
+                  type="button" data-bs-toggle="dropdown">
+                  <div class="d-flex align-items-center gap-2">
+                    <fa-icon [icon]="faFilter" class="text-white-50"></fa-icon>
+                    <span class="text-white-50 small uppercase font-weight-bold d-none d-sm-inline">Tienda:</span>
+                    <span class="fw-bold">{{ filtro() }}</span>
+                  </div>
+                  <fa-icon [icon]="faChevronDown" class="small opacity-50"></fa-icon>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-dark glass-dropdown w-100 shadow-lg mt-2">
+                  <li><a class="dropdown-item py-2" (click)="filterLista(todos)">Todo</a></li>
+                  <li><a class="dropdown-item py-2" (click)="filterLista(walmart)">Walmart</a></li>
+                  <li><a class="dropdown-item py-2" (click)="filterLista(mandado)">Mandado</a></li>
+                  <li><a class="dropdown-item py-2" (click)="filterLista(carnes)">Carnes</a></li>
+                  <li><a class="dropdown-item py-2" (click)="filterLista(costco)">Costco</a></li>
+                </ul>
+              </div>
+            </div>
+
+            <!-- Bulk Actions -->
+            <div class="col-6">
+              <div class="dropdown w-100">
+                <button
+                  class="btn modern-btn-secondary w-100 d-flex justify-content-between align-items-center p-2 px-3"
+                  type="button" data-bs-toggle="dropdown">
+                  <div class="d-flex align-items-center gap-2">
+                    <fa-icon [icon]="faBars" class="text-white-50"></fa-icon>
+                    <span class="fw-bold">Acciones</span>
+                  </div>
+                  <fa-icon [icon]="faChevronDown" class="small opacity-50"></fa-icon>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-dark glass-dropdown w-100 shadow-lg mt-2">
+                  <li><a class="dropdown-item py-2 text-danger" (click)="completar()">
+                      <fa-icon [icon]="faCheckDouble" class="me-2"></fa-icon> Completar
+                    </a></li>
+                  <li><a class="dropdown-item py-2" (click)="sinCostco()">
+                      <fa-icon [icon]="faFilter" class="me-2"></fa-icon> Sin Costco
+                    </a></li>
+                  <li><a class="dropdown-item py-2" (click)="agregar()">
+                      <fa-icon [icon]="faCartPlus" class="me-2"></fa-icon> Agregar
+                    </a></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- List Content -->
+      <div class="table-scroll bg-transparent border-0 shadow-none">
+        @if (appState(); as state) {
+        @switch (state.dataState) {
+        @case (DataState.LOADING_STATE) {
+        <div class="loading-container p-5 text-center glass-card">
+          <div class="spinner-modern"></div>
+          <p class="mt-3 text-muted">Cargando lista...</p>
+        </div>
+        }
+        @case (DataState.LOADED_STATE) {
+
+        <!-- Desktop Table View -->
+        <div class="table-responsive glass-card d-none d-md-block">
+          <table class="table modern-table mb-0">
+            <thead>
+              <tr>
+                <th class="text-center" style="width: 80px">
+                  <div class="d-flex align-items-center justify-content-center gap-1">
+                    <fa-icon [icon]="faBolt" class="text-white-50 small"></fa-icon>
+                    <span class="d-none d-lg-inline">Acciones</span>
+                  </div>
+                </th>
+                <th>Producto</th>
+                <th class="text-center">Tienda</th>
+                <th class="text-center">Cantidad</th>
+                <th class="text-center">Unidad</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (lista of state.appData; track lista.id) {
+              <tr class="modern-tr">
+                <td class="text-center align-middle">
+                  <button (click)="borraLista(lista.id)" class="btn-action danger" title="Eliminar">
+                    <fa-icon [icon]="faTrashAlt"></fa-icon>
+                  </button>
+                </td>
+                <td class="product-name align-middle">{{ lista.producto.nombre }}</td>
+                <td class="text-center align-middle">
+                  <span class="badge-store" [attr.data-store]="lista.producto.donde">
+                    {{ lista.producto.donde }}
+                  </span>
+                </td>
+                <td class="text-center align-middle">
+                  <span class="qty-badge">{{ lista.cantidad }}</span>
+                </td>
+                <td class="text-center align-middle">
+                  <span class="unit-badge">{{ lista.unidades }}</span>
+                </td>
+              </tr>
+              }
+              @if (state.appData?.length === 0) {
+              <tr>
+                <td colspan="5" class="p-5 text-center text-muted">
+                  <div class="empty-state">
+                    <div class="opacity-25 mb-3">
+                      <fa-icon [icon]="faCartArrowDown" size="3x"></fa-icon>
+                    </div>
+                    <p>Tu lista está vacía.</p>
+                  </div>
+                </td>
+              </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Mobile Card View -->
+        <div class="d-md-none d-flex flex-column gap-3">
+          @for (lista of state.appData; track lista.id) {
+          <div class="glass-card p-3">
+            <h5 class="product-name mb-1 fw-bold">{{ lista.producto.nombre }}</h5>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <span class="badge-store" [attr.data-store]="lista.producto.donde">
+                {{ lista.producto.donde }}
+              </span>
+              <div class="d-flex flex-wrap gap-2">
+                <button (click)="borraLista(lista.id)" class="btn btn-sm btn-outline-danger px-3" title="Borrar">
+                  Borrar
+                </button>
+              </div>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center bg-white bg-opacity-10 p-2 rounded-3">
+              <div class="d-flex align-items-center gap-2">
+                <span class="text-secondary small">Cant:</span>
+                <span class="fw-bold">{{ lista.cantidad }} {{ lista.unidades }}</span>
+              </div>
+            </div>
+          </div>
+          }
+          @if (state.appData?.length === 0) {
+          <div class="glass-card p-5 text-center text-muted">
+            <div class="opacity-25 mb-3">
+              <fa-icon [icon]="faCartArrowDown" size="3x"></fa-icon>
+            </div>
+            <p>Tu lista está vacía.</p>
+          </div>
+          }
+        </div>
+
+        }
+        @case (DataState.ERROR_STATE) {
+        <div class="error-container p-5 text-center glass-card">
+          <div class="alert alert-danger glass-alert">
+            <i class="fa fa-exclamation-triangle me-2"></i>
+            {{ state.error }}
+          </div>
+        </div>
+        }
+        }
+        }
+      </div>
+    </div>
+  </div>
+</section>

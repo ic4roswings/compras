@@ -1,0 +1,62 @@
+# Compose de PRODUCCIÓN: solo descarga imágenes de ghcr.io (las construye GitHub Actions).
+# En el servidor basta este archivo + los .env + privateKey.pem (no se versionan):
+#   backend.env      -> variables del backend (DB_*, VECTOR_DB_URL, OPENAI_API_KEY, ...)
+#   mcp.env          -> variables del MCP (DB_*, SERV_URL)
+#   privateKey.pem   -> clave privada RSA del login
+# Actualizar:  docker compose -f docker-compose.prod.yml pull && docker compose -f docker-compose.prod.yml up -d
+services:
+  backend:
+    image: ghcr.io/ic4roswings/compras-backend:main
+    container_name: compras_backend
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    env_file:
+      - backend.env
+    environment:
+      - TZ=America/Mexico_City
+    volumes:
+      - ./privateKey.pem:/app/privateKey.pem:ro
+    networks:
+      red_python:
+        ipv4_address: 172.18.0.2
+
+  frontend:
+    image: ghcr.io/ic4roswings/compras-frontend:main
+    container_name: compras_frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    networks:
+      red_angular:
+        ipv4_address: 172.19.0.3
+
+  mcp:
+    image: ghcr.io/ic4roswings/compras-mcp:main
+    container_name: compras_mcp
+    restart: unless-stopped
+    ports:
+      - "9091:8000"
+    env_file:
+      - mcp.env
+    networks:
+      compras_network:
+        ipv4_address: 172.25.0.2
+
+# Mismas subnets e IPs que los compose anteriores (backend/, frontend/, comprasMCP/)
+networks:
+  red_python:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.18.0.0/16
+  red_angular:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.19.0.0/16
+  compras_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.25.0.0/24

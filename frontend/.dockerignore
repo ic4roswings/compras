@@ -1,0 +1,9 @@
+.git
+node_modules
+dist
+.angular
+.idea
+.vscode
+*.log
+Dockerfile
+compose.yml

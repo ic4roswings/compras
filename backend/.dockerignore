@@ -1,0 +1,15 @@
+.git
+.env
+*.env
+.venv
+venv
+__pycache__
+*.pyc
+.idea
+media
+staticfiles
+db.sqlite3
+privateKey.pem
+*.pem
+Dockerfile
+compose.yml

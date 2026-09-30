@@ -1,0 +1,52 @@
+# ── Secretos (nunca al repo) ─────────────────────────────
+.env
+.env.*
+*.env
+env
+!.env.example
+*.pem
+*.key
+*secret*
+
+# ── Sistema / editores ───────────────────────────────────
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+*.swp
+*.swo
+
+# ── Claude Code (config personal) ────────────────────────
+.claude/settings.local.json
+
+# ── Logs y temporales ────────────────────────────────────
+*.log
+*.tmp
+temp/
+tmp/
+
+# ── Python (backend, comprasMCP) ─────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+backend/media/
+backend/static/
+backend/staticfiles/
+backend/db.sqlite3
+pyrightconfig.json
+.pytest_cache/
+.coverage
+
+# ── Node / Angular (frontend) ────────────────────────────
+node_modules/
+frontend/dist/
+frontend/out-tsc/
+frontend/.angular/
+frontend/coverage/
+frontend/.sass-cache/
+npm-debug.log*
+yarn-error.log*

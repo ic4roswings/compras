@@ -1,0 +1,127 @@
+<app-cabecera></app-cabecera>
+
+<section class="actualizar-page animate-fade-in">
+  <div class="container py-5">
+    <div class="row justify-content-center">
+      <div class="col-md-10 col-lg-8">
+
+        <div class="glass-card p-4 p-md-5">
+          <div class="text-center mb-5">
+            <h1 class="page-title">
+              <i class="fa-solid fa-pencil-square me-2"></i>
+              Editar Producto
+            </h1>
+            <p class="text-muted">Actualizar detalles del catálogo</p>
+          </div>
+
+          @if ((appState$ | async); as appState) {
+          @switch (appState.dataState) {
+          @case (DataState.LOADING_STATE) {
+          <div class="text-center p-5">
+            <div class="spinner-modern"></div>
+          </div>
+          }
+          @case (DataState.LOADED_STATE) {
+          <form #productoForm="ngForm" (ngSubmit)="actualizaProducto(productoForm)" class="modern-form">
+            <div class="row g-4">
+
+              <!-- Basic Info -->
+              <div class="col-md-8">
+                <label class="modal-label">Nombre del Producto</label>
+                <input [(ngModel)]="appState.appData.nombre" type="text" class="form-control modern-input" name="nombre"
+                  required>
+              </div>
+
+              <div class="col-md-4">
+                <label class="modal-label">Donde</label>
+                <select class="form-select modern-input" [(ngModel)]="appState.appData.donde" name="donde">
+                  <option value="Walmart">Walmart</option>
+                  <option value="Mandado">Mandado</option>
+                  <option value="Carnes">Carnes</option>
+                  <option value="Costco">Costco</option>
+                </select>
+              </div>
+
+              <!-- Quantity & Units -->
+              <div class="col-6 col-md-3">
+                <label class="modal-label">Cantidad</label>
+                <input [(ngModel)]="appState.appData.cantidad" type="number" class="form-control modern-input"
+                  name="cantidad">
+              </div>
+
+              <div class="col-6 col-md-3">
+                <label class="modal-label">Unidades</label>
+                <select class="form-select modern-input" [(ngModel)]="appState.appData.unidades" name="unidades">
+                  <option value="PZ">PZ</option>
+                  <option value="KG">KG</option>
+                  <option value="G">G</option>
+                  <option value="Paquete">Paquete</option>
+                </select>
+              </div>
+
+              <div class="col-6 col-md-3">
+                <label class="modal-label">Medida</label>
+                <select class="form-select modern-input" [(ngModel)]="appState.appData.medida" name="medida">
+                  <option value="QT">Cantidad</option>
+                  <option value="GR">Peso</option>
+                </select>
+              </div>
+
+              <div class="col-6 col-md-3">
+                <label class="modal-label">UPC</label>
+                <input [(ngModel)]="appState.appData.upc" type="text" class="form-control modern-input" name="upc"
+                  placeholder="-">
+              </div>
+
+              <!-- Options -->
+              <div class="col-12">
+                <div class="d-flex flex-wrap gap-4 py-2">
+                  <label class="modern-checkbox">
+                    <input [(ngModel)]="appState.appData.semanal" type="checkbox" name="semanal">
+                    <span>Semanal</span>
+                  </label>
+                  <label class="modern-checkbox">
+                    <input [(ngModel)]="appState.appData.mensual" type="checkbox" name="mensual">
+                    <span>Mensual</span>
+                  </label>
+                  <label class="modern-checkbox">
+                    <input [(ngModel)]="appState.appData.verificar" type="checkbox" name="verificar">
+                    <span>Verificar</span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- URL -->
+              <div class="col-12">
+                <label class="modal-label">URL de Referencia</label>
+                <input [(ngModel)]="appState.appData.URL" type="text" class="form-control modern-input" name="URL"
+                  placeholder="https://...">
+              </div>
+
+              <!-- Actions -->
+              <div class="col-12 d-flex gap-3 mt-4">
+                <button (click)="regresa()" type="button" class="btn glass-btn flex-grow-1">
+                  Cancelar
+                </button>
+                <button type="submit" class="btn modern-btn-primary flex-grow-2">
+                  <i class="fa fa-save me-2"></i> Actualizar Producto
+                </button>
+              </div>
+
+            </div>
+          </form>
+          }
+          @case (DataState.ERROR_STATE) {
+          <div class="alert alert-danger glass-alert text-center">
+            <i class="fa fa-exclamation-triangle me-2"></i>
+            {{ appState.error }}
+          </div>
+          }
+          }
+          }
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>

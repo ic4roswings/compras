@@ -1,0 +1,6 @@
+mcp==1.6.0
+requests==2.32.3
+python-dotenv==1.1.0
+rsa==4.9
+uvicorn==0.34.0
+psycopg2-binary==2.9.10

@@ -1,0 +1,177 @@
+/* FAB Container */
+.fab-container {
+    position: fixed;
+    bottom: 24px;
+    left: 24px;
+    right: auto;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column-reverse;
+    /* Main button at bottom */
+    align-items: flex-start;
+    /* Align to left */
+    gap: 16px;
+}
+
+/* Main Toggle Button */
+.fab-main {
+    width: 65px;
+    height: 65px;
+    border-radius: 50%;
+    background: var(--primary);
+    color: white;
+    border: none;
+    box-shadow: 0 4px 15px var(--primary-glow);
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    z-index: 2;
+}
+
+.fab-main:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px var(--primary-glow);
+}
+
+.fab-main.active {
+    background: var(--surface-card);
+    color: var(--text-primary);
+    transform: rotate(90deg);
+}
+
+/* Actions Menu */
+.fab-actions {
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 12px;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(20px) scale(0.8);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    margin-bottom: 5px;
+    margin-left: 5px;
+    /* Center with main button slightly */
+}
+
+.fab-actions.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0) scale(1);
+}
+
+/* Individual Action Item */
+.fab-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-direction: row;
+    /* Icon left, label right */
+}
+
+.fab-label {
+    background: var(--surface-card);
+    color: var(--text-primary);
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    box-shadow: var(--shadow-sm);
+    white-space: nowrap;
+    opacity: 0;
+    transform: translateX(-10px);
+    transition: all 0.2s ease;
+    pointer-events: none;
+}
+
+.fab-actions.show .fab-label {
+    opacity: 1;
+    transform: translateX(0);
+    transition-delay: 0.1s;
+}
+
+/* Mini Action Buttons */
+.fab-btn {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    box-shadow: var(--shadow-md);
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.fab-btn:hover {
+    transform: scale(1.1);
+}
+
+.fab-btn.primary {
+    background: var(--primary);
+    color: white;
+}
+
+.fab-btn.secondary {
+    background: var(--surface-card);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+}
+
+.fab-btn.info {
+    background: var(--surface-accent);
+    color: var(--text-primary);
+}
+
+/* Search Expandable */
+.search-item {
+    position: relative;
+}
+
+.search-expandable {
+    position: absolute;
+    left: 55px;
+    /* Right of the button */
+    right: auto;
+    bottom: 0;
+    width: 0;
+    height: 45px;
+    background: var(--surface-card);
+    border-radius: 25px;
+    overflow: hidden;
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: var(--shadow-md);
+    display: flex;
+    align-items: center;
+}
+
+.search-expandable.expanded {
+    width: 250px;
+    padding-right: 15px;
+    /* Space for the input end */
+    border: 1px solid var(--border-color);
+}
+
+.fab-search-input {
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    border: none;
+    padding: 0 20px;
+    color: var(--text-primary);
+    outline: none;
+    font-size: 0.95rem;
+}
+
+/* Dropup overrides */
+.dropup .dropdown-menu {
+    bottom: 100% !important;
+    top: auto !important;
+    margin-bottom: 10px;
+    left: 0;
+}

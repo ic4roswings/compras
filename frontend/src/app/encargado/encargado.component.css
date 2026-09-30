@@ -1,0 +1,211 @@
+.encargado-page {
+    min-height: 100vh;
+    background: radial-gradient(circle at top right, hsla(187, 100%, 33%, 0.05), transparent 400px),
+        radial-gradient(circle at bottom left, hsla(357, 68%, 50%, 0.05), transparent 400px);
+}
+
+/* Glass Card and Page background handled globally */
+
+.header-card {
+    padding: 1.5rem 2rem;
+}
+
+.page-title {
+    font-size: 1.75rem;
+    font-weight: 800;
+    margin: 0;
+    background: linear-gradient(45deg, var(--text-primary), var(--text-secondary));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.glass-btn {
+    background: var(--surface-accent);
+    color: var(--text-primary);
+    border: var(--glass-border);
+    padding: 10px 20px;
+    border-radius: 12px;
+    font-weight: 600;
+    transition: all var(--transition-fast);
+}
+
+.glass-btn:hover {
+    filter: brightness(1.2);
+}
+
+/* Table Container Enhancements */
+.table-container {
+    padding: 0 1rem;
+}
+
+.modern-table {
+    margin: 1rem 0 !important;
+}
+
+.product-name {
+    font-weight: 600;
+}
+
+/* Badges */
+.badge-store {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.qty-badge {
+    background: var(--surface-accent);
+    padding: 4px 12px;
+    border-radius: 8px;
+    font-weight: 700;
+    color: var(--primary);
+}
+
+.unit-badge {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+/* Action Buttons */
+.btn-action {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition-fast);
+}
+
+.btn-action.danger {
+    background: hsla(350, 90%, 43%, 0.1);
+    color: #ff4d4d;
+}
+
+.btn-action.info {
+    background: hsla(187, 100%, 33%, 0.1);
+    color: var(--tertiary);
+}
+
+.btn-action:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.2);
+}
+
+/* Modern Controls */
+.header-controls {
+    position: relative;
+    z-index: 1000;
+}
+
+.modern-btn-secondary {
+    background: var(--surface-accent);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    font-weight: 600;
+    transition: all var(--transition-fast);
+}
+
+.modern-btn-secondary:hover {
+    background: var(--surface-color);
+    border-color: var(--primary);
+}
+
+.glass-dropdown {
+    background: rgba(30, 30, 30, 0.95) !important;
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 12px;
+    z-index: 9999 !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+}
+
+.glass-dropdown .dropdown-item {
+    transition: all 0.2s;
+    border-radius: 8px;
+    margin: 2px 8px;
+    width: auto;
+    color: var(--text-secondary);
+}
+
+.glass-dropdown .dropdown-item:hover {
+    background: var(--primary);
+    color: white;
+    transform: translateX(5px);
+}
+
+/* FAB Container Walmart Standalone */
+.fab-main.walmart-btn {
+    background: #0071ce !important;
+    /* Walmart Blue */
+    color: white !important;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    border: none;
+    box-shadow: 0 4px 15px rgba(0, 113, 206, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.fab-main.walmart-btn:hover {
+    background: #00569e !important;
+    transform: scale(1.1) rotate(5deg);
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.animate-slide-in {
+    animation: slideIn 0.4s ease-out forwards;
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.5s ease-out forwards;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.spinner-modern {
+    width: 40px;
+    height: 40px;
+    border: 3px solid var(--border-color);
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    display: inline-block;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
