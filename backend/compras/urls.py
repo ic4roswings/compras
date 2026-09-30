@@ -23,7 +23,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path('portal-secreto/', admin.site.urls),
     path('productos/', apiViews.ProductoListView.as_view(), name='productos_list'),
     path('productos/<int:id>', apiViews.ProductoDetailView.as_view(), name='producto_detail'),
     path('productos/<str:nombre>',apiViews.ProductoFiltradoView.as_view(), name='producto_filtrado'),

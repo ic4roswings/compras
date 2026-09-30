@@ -83,6 +83,7 @@ SIMPLE_JWT = {
 }
 
 MIDDLEWARE = [
+    'compras.middleware.RestrictAdminByIpMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
