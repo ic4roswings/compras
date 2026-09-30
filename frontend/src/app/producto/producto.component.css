@@ -15,7 +15,7 @@
     position: relative;
     display: flex;
     align-items: center;
-    background: var(--surface-color);
+    background: var(--glass-sunken);
     border: 1px solid var(--border-color);
     border-radius: 12px;
     width: 100%;
@@ -63,7 +63,7 @@
 }
 
 .glass-btn {
-    background: var(--surface-accent);
+    background: var(--glass-surface);
     color: var(--text-primary);
     border: var(--glass-border);
     padding: 10px 20px;
@@ -73,7 +73,7 @@
 }
 
 .glass-btn:hover {
-    background: var(--surface-accent);
+    background: var(--glass-surface-hover);
     filter: brightness(1.2);
     color: var(--text-primary);
 }
@@ -92,7 +92,7 @@
 /* Quantity Control handled globally */
 
 .modern-select {
-    background: var(--surface-color);
+    background: var(--glass-sunken);
     border: 1px solid var(--border-color);
     color: var(--text-primary);
     padding: 5px 10px;
@@ -126,7 +126,7 @@
 
 /* Modal Inputs */
 .modern-input {
-    background: var(--surface-color);
+    background: var(--glass-sunken);
     border: 1px solid var(--border-color);
     color: var(--text-primary);
     border-radius: 10px;
@@ -166,7 +166,7 @@
 }
 
 .modern-btn-secondary {
-    background: var(--surface-accent);
+    background: var(--glass-surface);
     color: var(--text-primary);
     border: 1px solid var(--border-color);
     border-radius: 12px;
@@ -175,7 +175,7 @@
 }
 
 .modern-btn-secondary:hover {
-    background: var(--surface-color);
+    background: var(--glass-surface-hover);
     border-color: var(--primary);
 }
 
@@ -279,4 +279,4 @@
 .fab-main:hover {
     background: #b71c1c !important;
     transform: scale(1.1) rotate(5deg);
-}
+}

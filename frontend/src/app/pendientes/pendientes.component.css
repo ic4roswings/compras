@@ -24,7 +24,7 @@
     position: relative;
     display: flex;
     align-items: center;
-    background: var(--surface-color);
+    background: var(--glass-sunken);
     border: 1px solid var(--border-color);
     border-radius: 12px;
     width: 350px;
@@ -115,4 +115,4 @@
     to {
         transform: rotate(360deg);
     }
-}
+}

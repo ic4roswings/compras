@@ -31,7 +31,28 @@
   
   /* Glassmorphism */
   --glass-blur: blur(12px);
-  --glass-border: 1px solid hsla(0, 0%, 100%, 0.1);
+  --glass-border: 1px solid hsla(0, 0%, 100%, 0.12);
+  --glass-border-color: hsla(0, 0%, 100%, 0.12);
+
+  /* Vidrio en capas: reflejo de luz en la esquina superior + brillo vertical + tinte
+     translúcido (deja ver los brillos de color del fondo del body) */
+  --glass-surface:
+    radial-gradient(120% 70% at 0% 0%, rgba(255, 255, 255, 0.07), transparent 55%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.015)),
+    linear-gradient(rgba(14, 17, 26, 0.42), rgba(14, 17, 26, 0.42));
+  --glass-surface-hover:
+    radial-gradient(120% 70% at 0% 0%, rgba(255, 255, 255, 0.12), transparent 55%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.04)),
+    linear-gradient(rgba(14, 17, 26, 0.42), rgba(14, 17, 26, 0.42));
+  /* Modales y menús: más opacos para que el texto se lea sobre cualquier cosa */
+  --glass-surface-strong:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.015)),
+    linear-gradient(rgba(12, 15, 24, 0.82), rgba(12, 15, 24, 0.82));
+  /* Inputs y cajas internas: vidrio "hundido" (más oscuro, sin reflejo) */
+  --glass-sunken:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0)),
+    linear-gradient(rgba(2, 6, 23, 0.38), rgba(2, 6, 23, 0.38));
+  --glass-shadow: 0 18px 40px -20px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
 [data-theme="light"] {

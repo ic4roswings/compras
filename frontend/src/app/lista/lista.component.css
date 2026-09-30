@@ -51,7 +51,7 @@
 }
 
 .glass-btn {
-    background: var(--surface-accent);
+    background: var(--glass-surface);
     color: var(--text-primary);
     border: var(--glass-border);
     padding: 10px 20px;
@@ -89,7 +89,7 @@
 }
 
 .modern-input {
-    background: var(--surface-color);
+    background: var(--glass-sunken);
     border: 1px solid var(--border-color);
     color: var(--text-primary);
     border-radius: 10px;
@@ -97,7 +97,7 @@
 }
 
 .modern-btn-secondary {
-    background: var(--surface-accent);
+    background: var(--glass-surface);
     color: var(--text-primary);
     border: 1px solid var(--border-color);
     border-radius: 12px;
@@ -106,7 +106,7 @@
 }
 
 .modern-btn-secondary:hover {
-    background: var(--surface-color);
+    background: var(--glass-surface-hover);
     border-color: var(--primary);
 }
 
@@ -151,7 +151,7 @@
 
 /* Badges */
 .qty-badge {
-    background: var(--surface-accent);
+    background: var(--glass-surface);
     padding: 4px 12px;
     border-radius: 8px;
     font-weight: 700;
@@ -211,4 +211,4 @@
     to {
         transform: rotate(360deg);
     }
-}
+}

@@ -11,7 +11,7 @@
 /* Page titles handled globally */
 
 .glass-btn {
-    background: var(--surface-accent);
+    background: var(--glass-surface);
     color: var(--text-primary);
     border: var(--glass-border);
     padding: 10px 20px;
@@ -54,7 +54,7 @@
 /* Quantity Control handled globally */
 
 .modern-select {
-    background: var(--surface-color);
+    background: var(--glass-sunken);
     border: 1px solid var(--border-color);
     color: var(--text-primary);
     padding: 5px 10px;
@@ -69,7 +69,7 @@
 }
 
 .modern-btn-secondary {
-    background: var(--surface-accent);
+    background: var(--glass-surface);
     color: var(--text-primary);
     border: 1px solid var(--border-color);
     border-radius: 12px;
@@ -78,7 +78,7 @@
 }
 
 .modern-btn-secondary:hover {
-    background: var(--surface-color);
+    background: var(--glass-surface-hover);
     border-color: var(--primary);
 }
 
@@ -198,4 +198,4 @@
     background: var(--primary);
     color: white;
     transform: translateX(5px);
-}
+}

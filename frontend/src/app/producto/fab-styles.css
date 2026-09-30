@@ -124,7 +124,7 @@
 }
 
 .fab-btn.info {
-    background: var(--surface-accent);
+    background: var(--glass-surface);
     color: var(--text-primary);
 }
 
