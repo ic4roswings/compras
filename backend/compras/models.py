@@ -75,24 +75,6 @@ class ComidaIngrediente(models.Model):
         return f'{self.comida.nombre}: {self.producto.nombre}'
 
 
-class Comidas(models.Model):
-    """LEGADO: estructura anterior (una fila por ingrediente). Se conserva como respaldo; ya no se usa.
-    Ver Comida y ComidaIngrediente."""
-    TIPOS = [(1, 'Entre semana'), (2, 'Fin de semana')]
-
-    id = models.AutoField(primary_key=True)
-    comida = models.CharField(max_length=50)
-    # Igual en todas las filas (ingredientes) de una misma comida
-    tipo = models.PositiveSmallIntegerField(choices=TIPOS, default=1)
-    # Igual en todas las filas de una misma comida; null = sin base asignada
-    base = models.ForeignKey(BaseComida, null=True, blank=True, on_delete=models.SET_NULL, related_name='comidas')
-    producto = models.ForeignKey(Producto, on_delete=models.CASCADE, related_name='productoC')
-    cantidad = models.IntegerField()
-    unidades = models.CharField(max_length=50, default='')
-
-    def __str__(self):
-        return self.producto
-    
 class Pendiente(models.Model):
     id = models.AutoField(primary_key=True)
     pendiente = models.CharField(max_length=500, default='')
