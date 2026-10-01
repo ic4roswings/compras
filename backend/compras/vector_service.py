@@ -24,9 +24,13 @@ if not VECTOR_DB_URL and "PGVECTOR" not in os.environ:
     pass
 
 # Inicializar modelo de OpenAI con el modelo acordado
+# check_embedding_ctx_length=False evita que la librería use tiktoken, que en un contenedor nuevo
+# descarga ~1.7 MB de internet en la primera llamada (1.6 s o más: hacía que la primera búsqueda
+# agotara el timeout del MCP). Los nombres de producto son cortos, y los embeddings resultan idénticos.
 embeddings = OpenAIEmbeddings(
     model="text-embedding-ada-002",
-    api_key=os.environ.get("OPENAI_API_KEY", "")
+    api_key=os.environ.get("OPENAI_API_KEY", ""),
+    check_embedding_ctx_length=False,
 )
 
 # Inicializar nuestro store vectorial
