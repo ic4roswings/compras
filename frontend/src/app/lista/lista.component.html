@@ -77,7 +77,7 @@
           <table class="table modern-table mb-0">
             <thead>
               <tr>
-                <th class="text-center" style="width: 80px">
+                <th class="text-center" style="width: 110px">
                   <div class="d-flex align-items-center justify-content-center gap-1">
                     <fa-icon [icon]="faBolt" class="text-white-50 small"></fa-icon>
                     <span class="d-none d-lg-inline">Acciones</span>
@@ -93,9 +93,14 @@
               @for (lista of state.appData; track lista.id) {
               <tr class="modern-tr">
                 <td class="text-center align-middle">
-                  <button (click)="borraLista(lista.id)" class="btn-action danger" title="Eliminar">
-                    <fa-icon [icon]="faTrashAlt"></fa-icon>
-                  </button>
+                  <div class="d-flex align-items-center justify-content-center gap-2">
+                    <button (click)="abrirEditor(lista)" class="btn-action info" title="Editar">
+                      <fa-icon [icon]="faEdit"></fa-icon>
+                    </button>
+                    <button (click)="borraLista(lista.id)" class="btn-action danger" title="Eliminar">
+                      <fa-icon [icon]="faTrashAlt"></fa-icon>
+                    </button>
+                  </div>
                 </td>
                 <td class="product-name align-middle">{{ lista.producto.nombre }}</td>
                 <td class="text-center align-middle">
@@ -137,6 +142,9 @@
                 {{ lista.producto.donde }}
               </span>
               <div class="d-flex flex-wrap gap-2">
+                <button (click)="abrirEditor(lista)" class="btn btn-sm btn-outline-info px-3" title="Editar">
+                  Editar
+                </button>
                 <button (click)="borraLista(lista.id)" class="btn btn-sm btn-outline-danger px-3" title="Borrar">
                   Borrar
                 </button>

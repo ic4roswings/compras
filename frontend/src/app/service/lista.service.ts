@@ -37,6 +37,14 @@ export class ListaService {
       );
   }
 
+  // Cambia cantidad y unidad de un elemento de la lista (el backend exige también el id del producto)
+  modificaLista(id: number, payload: { producto: number; cantidad: number; unidades: string }): Observable<any> {
+    return this.http.put(`${this.apiUrl}lista/${id}`, payload)
+      .pipe(
+        catchError(this.handleError)
+      );
+  }
+
   borraTodaLista(): Observable<any> {
     return this.http.delete(`${this.apiUrl}lista/delete`)
       .pipe(

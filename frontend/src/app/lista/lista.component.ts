@@ -9,7 +9,7 @@ import { Donde } from '../enum/donde.enum';
 import { CabeceraComponent } from '../cabecera/cabecera.component';
 import Swal from 'sweetalert2';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faFilter, faPlus, faTrashAlt, faTimes, faBars, faCartArrowDown, faSearch, faChevronDown, faSyncAlt, faTrash, faCheckDouble, faCartPlus, faBolt } from '@fortawesome/free-solid-svg-icons';
+import { faFilter, faPlus, faTrashAlt, faTimes, faBars, faCartArrowDown, faSearch, faChevronDown, faSyncAlt, faTrash, faCheckDouble, faCartPlus, faBolt, faEdit } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
   selector: 'app-lista',
@@ -38,6 +38,7 @@ export class ListaComponent implements OnInit {
   faBars = faBars;
   faCartArrowDown = faCartArrowDown;
   faBolt = faBolt;
+  faEdit = faEdit;
 
   readonly DataState = DataState;
 
@@ -135,6 +136,55 @@ export class ListaComponent implements OnInit {
           });
         });
       }
+    });
+  }
+
+  // Edita cantidad y unidad de un elemento ya agregado a la lista
+  abrirEditor(lista: ListaI) {
+    Swal.fire({
+      title: `Modificar ${lista.producto.nombre}`,
+      html: `
+      <input id="swal-cantidad" class="swal2-input" placeholder="Cantidad" type="number" min="1" step="1" value="${lista.cantidad}">
+      <select id="swal-unidad" class="swal2-select">
+        <option value="PZ" ${lista.unidades === 'PZ' ? 'selected' : ''}>PZ</option>
+        <option value="G" ${lista.unidades === 'G' ? 'selected' : ''}>G</option>
+        <option value="KG" ${lista.unidades === 'KG' ? 'selected' : ''}>KG</option>
+        <option value="Paquete" ${lista.unidades === 'Paquete' ? 'selected' : ''}>Paquete</option>
+      </select>
+    `,
+      showCancelButton: true,
+      confirmButtonText: 'Guardar',
+      cancelButtonText: 'Cancelar',
+      preConfirm: () => {
+        const cantidad = Number((document.getElementById('swal-cantidad') as HTMLInputElement).value);
+        const unidad = (document.getElementById('swal-unidad') as HTMLSelectElement).value;
+
+        // En la lista la cantidad es un entero (así lo exige el backend)
+        if (!Number.isInteger(cantidad) || cantidad < 1) {
+          Swal.showValidationMessage('La cantidad debe ser un número entero mayor que 0');
+          return false;
+        }
+        return { cantidad, unidades: unidad };
+      }
+    }).then(result => {
+      if (!result.isConfirmed || !result.value) return;
+
+      const { cantidad, unidades } = result.value;
+      this.listaService.modificaLista(lista.id, { producto: lista.producto.id, cantidad, unidades }).subscribe({
+        next: () => {
+          this.data.update(items => items
+            ? items.map(item => item.id === lista.id ? { ...item, cantidad, unidades } : item)
+            : items);
+          Swal.fire({
+            title: 'Modificado',
+            text: 'El producto ha sido actualizado.',
+            icon: 'success',
+            timer: 500,
+            showConfirmButton: false
+          });
+        },
+        error: () => Swal.fire('Error', 'No se pudo modificar el producto.', 'error')
+      });
     });
   }
 

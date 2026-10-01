@@ -72,29 +72,21 @@
           <table class="table modern-table mb-0">
             <thead>
               <tr>
+                <th>Producto</th>
+                <th class="text-center">Tienda</th>
+                <th class="text-center">Cantidad</th>
+                <th class="text-center">Unidad</th>
                 <th class="text-center" style="width: 80px">
                   <div class="d-flex align-items-center justify-content-center gap-1">
                     <fa-icon [icon]="faBolt" class="text-white-50 small"></fa-icon>
                     <span class="d-none d-lg-inline">Acción</span>
                   </div>
                 </th>
-                <th>Producto</th>
-                <th class="text-center">Tienda</th>
-                <th class="text-center">Cantidad</th>
-                <th class="text-center">Unidad</th>
               </tr>
             </thead>
             <tbody>
               @for (producto of state.appData; track producto.id) {
               <tr class="modern-tr">
-                <td class="text-center align-middle">
-                  <div class="d-flex flex-column flex-lg-row align-items-center justify-content-lg-center gap-2">
-                    <button (click)="borraSemanal(producto.id)" class="btn-action danger"
-                      title="Quitar de este listado">
-                      <fa-icon [icon]="faTrashAlt"></fa-icon>
-                    </button>
-                  </div>
-                </td>
                 <td class="product-name align-middle">{{ producto.nombre }}</td>
                 <td class="text-center align-middle">
                   <span class="badge-store" [attr.data-store]="producto.donde">
@@ -115,6 +107,14 @@
                     <option value="G">G</option>
                     <option value="Paquete">Paquete</option>
                   </select>
+                </td>
+                <td class="text-center align-middle">
+                  <div class="d-flex flex-column flex-lg-row align-items-center justify-content-lg-center gap-2">
+                    <button (click)="borraSemanal(producto.id)" class="btn-action danger"
+                      title="Quitar de este listado">
+                      <fa-icon [icon]="faTrashAlt"></fa-icon>
+                    </button>
+                  </div>
                 </td>
               </tr>
               }
