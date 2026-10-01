@@ -1,9 +1,9 @@
 import random
 from django.db import transaction
-from django.db.models import Sum, Count, Max, Min
+from django.db.models import Sum, Count, Max
 from typing import List, Optional
 from django.utils import timezone
-from .models import Lista, Encargo, Producto, Comidas, BaseComida, HistorialCompra, HistorialComida
+from .models import Lista, Encargo, Producto, Comida, BaseComida, HistorialCompra, HistorialComida
 from .models_gastos import Operaciones, OperacionesHistorico
 from decimal import Decimal
 
@@ -79,11 +79,14 @@ def metricas_productos() -> List[dict]:
 
 
 def metricas_comidas() -> List[dict]:
-    """Frecuencia con que se hace cada comida, la más frecuente primero."""
+    """Frecuencia con que se hace cada comida (por ID; si el historial perdió su comida, por nombre)."""
     agrupado = {}
-    for comida, fecha in HistorialComida.objects.order_by('fecha').values_list('comida', 'fecha'):
-        agrupado.setdefault(comida, []).append(fecha)
-    resultado = [{'comida': c, **_frecuencia(f)} for c, f in agrupado.items()]
+    filas = HistorialComida.objects.order_by('fecha').values_list('comida_id', 'comida__nombre', 'nombre', 'fecha')
+    for comida_id, nombre_actual, nombre_historial, fecha in filas:
+        clave = comida_id or nombre_historial
+        grupo = agrupado.setdefault(clave, {'id': comida_id, 'comida': nombre_actual or nombre_historial, 'fechas': []})
+        grupo['fechas'].append(fecha)
+    resultado = [{'id': g['id'], 'comida': g['comida'], **_frecuencia(g['fechas'])} for g in agrupado.values()]
     return sorted(resultado, key=lambda r: (-r['veces'], r['comida']))
 
 
@@ -99,7 +102,7 @@ def obtener_o_crear_base(nombre: Optional[str]) -> Optional[BaseComida]:
 COMIDAS_RECIENTES = 3  # cuántas de las últimas comidas hechas se miran para no repetir base
 
 
-def sugerir_comidas(por_tipo: int = 1, excluir: Optional[List[str]] = None) -> List[dict]:
+def sugerir_comidas(por_tipo: int = 2, excluir: Optional[List[str]] = None) -> List[dict]:
     """
     Sugiere comidas que llevan más tiempo sin hacerse: `por_tipo` de entre semana (tipo 1) y
     `por_tipo` de fin de semana (tipo 2). Las que nunca se han registrado van primero (aleatorias);
@@ -109,30 +112,26 @@ def sugerir_comidas(por_tipo: int = 1, excluir: Optional[List[str]] = None) -> L
     `excluir` son comidas ya sugeridas (para "otras sugerencias"); si no quedan suficientes, se ignora.
     """
     ultimas = dict(
-        HistorialComida.objects.values('comida').annotate(ultima=Max('fecha')).values_list('comida', 'ultima')
+        HistorialComida.objects.filter(comida__isnull=False)
+        .values('comida_id').annotate(ultima=Max('fecha')).values_list('comida_id', 'ultima')
     )
-    tipos = dict(
-        Comidas.objects.values('comida').annotate(tipo=Min('tipo')).values_list('comida', 'tipo')
-    )
-    bases = {}
-    for nombre, base in Comidas.objects.exclude(base__isnull=True).values_list('comida', 'base__nombre'):
-        bases[nombre] = base
-
+    comidas = list(Comida.objects.select_related('base'))
     recientes = {
-        bases[c] for c in HistorialComida.objects.order_by('-fecha').values_list('comida', flat=True)[:COMIDAS_RECIENTES]
-        if c in bases
+        base for base in HistorialComida.objects.filter(comida__isnull=False)
+        .order_by('-fecha').values_list('comida__base__nombre', flat=True)[:COMIDAS_RECIENTES]
+        if base
     }
 
-    disponibles = {n: t for n, t in tipos.items() if n not in set(excluir or ())}
+    disponibles = [c for c in comidas if c.nombre not in set(excluir or ())]
     if len(disponibles) >= 2 * por_tipo:
-        tipos = disponibles
+        comidas = disponibles
 
     hoy = timezone.localdate()
     nunca, hechas = [], []
-    for nombre, tipo in tipos.items():
-        r = {'comida': nombre, 'tipo': tipo, 'base': bases.get(nombre)}
-        if nombre in ultimas:
-            r['dias_desde_ultima'] = (hoy - timezone.localtime(ultimas[nombre]).date()).days
+    for c in comidas:
+        r = {'id': c.id, 'comida': c.nombre, 'tipo': c.tipo, 'base': c.base.nombre if c.base else None}
+        if c.id in ultimas:
+            r['dias_desde_ultima'] = (hoy - timezone.localtime(ultimas[c.id]).date()).days
             hechas.append(r)
         else:
             r['dias_desde_ultima'] = None

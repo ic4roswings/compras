@@ -10,7 +10,7 @@
         <div class="glass-card mb-4 p-3">
           <div class="row g-2 align-items-center justify-content-center">
             <!-- Seleccionar Comida Filter -->
-            <div class="col-md-8 col-12">
+            <div class="col-12" [class.col-md-8]="!currentMeal()" [class.col-md-5]="currentMeal()">
               <div class="dropdown w-100">
                 <button #dropdownBtn
                   class="btn modern-btn-secondary w-100 d-flex justify-content-between align-items-center p-2 px-3"
@@ -47,22 +47,12 @@
               </div>
             </div>
             @if (currentMeal()) {
-            <div class="col-auto">
-              <input type="text" class="form-control modern-input" list="basesComida" maxlength="50"
-                placeholder="Base (pollo, res...)" autocomplete="off" title="Base de la comida" style="width: 170px"
-                [value]="baseActual()" (change)="cambiaBase($any($event.target).value)">
-              <datalist id="basesComida">
-                @for (b of bases(); track b) {
-                <option [value]="b"></option>
-                }
-              </datalist>
+            <div class="col-6 col-md-3">
+              <app-selector-base [valor]="baseActual()" [bases]="bases()" [permiteQuitar]="true"
+                (cambia)="cambiaBase($event)"></app-selector-base>
             </div>
-            <div class="col-auto">
-              <select class="form-select modern-input" [value]="tipoActual()" title="Tipo de comida"
-                (change)="cambiaTipo($any($event.target).value)">
-                <option value="1" [selected]="tipoActual() === 1">Entre semana</option>
-                <option value="2" [selected]="tipoActual() === 2">Fin de semana</option>
-              </select>
+            <div class="col-6 col-md-3">
+              <app-selector-tipo [valor]="tipoActual()" (cambia)="cambiaTipo($event)"></app-selector-tipo>
             </div>
             <div class="col-auto">
               <button type="button" (click)="eliminarComidaCompleta()" class="btn-action danger"
@@ -83,7 +73,7 @@
             <fa-icon [icon]="faLightbulb" class="me-1"></fa-icon> Sugerencias: hace tiempo que no las haces
           </span>
           <button type="button" class="btn modern-btn-secondary px-3 py-1" (click)="cargarSugerencias(true)"
-            title="Pedir otras 2 sugerencias">
+            title="Pedir otras 4 sugerencias">
             <fa-icon [icon]="faSyncAlt" class="me-1"></fa-icon> Otras
           </button>
         </div>
@@ -91,7 +81,7 @@
           @for (s of sugerencias(); track s.comida) {
           <button type="button" class="btn modern-btn-secondary px-3 py-2" (click)="obtenComidas(s.comida)">
             <span class="fw-bold">{{ s.comida }}</span>
-            <span class="text-white-50 small ms-2">{{ s.tipo === 2 ? 'Fin de semana' : 'Entre semana' }}</span>
+            <span class="text-white-50 small ms-2">{{ s.tipo === 2 ? 'Fin' : 'Entre' }}</span>
             @if (s.base) {
             <span class="text-white-50 small ms-2">· {{ s.base }}</span>
             }

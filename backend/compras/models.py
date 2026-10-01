@@ -47,7 +47,37 @@ class BaseComida(models.Model):
         return self.nombre
 
 
+class Comida(models.Model):
+    """Encabezado de una comida: el ente al que se ligan sus ingredientes y las métricas."""
+    TIPOS = [(1, 'Entre semana'), (2, 'Fin de semana')]
+
+    nombre = models.CharField(max_length=50, unique=True)
+    tipo = models.PositiveSmallIntegerField(choices=TIPOS, default=1)
+    base = models.ForeignKey(BaseComida, null=True, blank=True, on_delete=models.SET_NULL, related_name='comidas_base')
+
+    def __str__(self):
+        return self.nombre
+
+
+class ComidaIngrediente(models.Model):
+    """Un producto (con cantidad y unidades) que compone una comida."""
+    comida = models.ForeignKey(Comida, on_delete=models.CASCADE, related_name='ingredientes')
+    producto = models.ForeignKey(Producto, on_delete=models.CASCADE, related_name='ingredientes_comida')
+    cantidad = models.IntegerField()
+    unidades = models.CharField(max_length=50, default='')
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['comida', 'producto'], name='comida_producto_unico'),
+        ]
+
+    def __str__(self):
+        return f'{self.comida.nombre}: {self.producto.nombre}'
+
+
 class Comidas(models.Model):
+    """LEGADO: estructura anterior (una fila por ingrediente). Se conserva como respaldo; ya no se usa.
+    Ver Comida y ComidaIngrediente."""
     TIPOS = [(1, 'Entre semana'), (2, 'Fin de semana')]
 
     id = models.AutoField(primary_key=True)
@@ -88,9 +118,10 @@ class HistorialCompra(models.Model):
 class HistorialComida(models.Model):
     """Una vez que se hizo una comida: se registra al agregar sus ingredientes a la lista."""
     id = models.AutoField(primary_key=True)
-    comida = models.CharField(max_length=50, db_index=True)
+    comida = models.ForeignKey(Comida, null=True, on_delete=models.SET_NULL, related_name='historial')
+    nombre = models.CharField(max_length=50, db_index=True)
     fecha = models.DateTimeField(auto_now_add=True, db_index=True)
 
     def __str__(self):
-        return f'{self.comida} ({self.fecha:%Y-%m-%d})'
+        return f'{self.nombre} ({self.fecha:%Y-%m-%d})'
 

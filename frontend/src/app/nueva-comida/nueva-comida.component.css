@@ -189,3 +189,29 @@
         grid-column: 1 / -1;
     }
 }
+
+.tipo-btn {
+    background: var(--glass-surface);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    font-weight: 600;
+    transition: all var(--transition-fast);
+}
+
+.tipo-btn:hover {
+    background: var(--glass-surface-hover);
+    border-color: var(--primary);
+}
+
+.base-chip {
+    padding: 4px 14px;
+    font-size: 0.9rem;
+}
+
+.tipo-btn.seleccionado {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: white;
+    box-shadow: 0 4px 12px var(--primary-glow);
+}

@@ -4,6 +4,8 @@ import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { DataState } from '../enum/data-state.enum';
 import { GlobalService } from '../service/global.service';
 import { ComidasService } from '../service/comidas.service';
+import { SelectorBaseComponent } from '../selector-comida/selector-base.component';
+import { SelectorTipoComponent } from '../selector-comida/selector-tipo.component';
 import { MetricasService } from '../service/metricas.service';
 import { SugerenciaComida } from '../interface/metricas.interface';
 import { Comidas } from '../interface/comidas.interface';
@@ -23,7 +25,7 @@ declare var bootstrap: any;
   templateUrl: './comidas.component.html',
   styleUrls: ['./comidas.component.css'],
   standalone: true,
-  imports: [RouterModule, CabeceraComponent, FontAwesomeModule, AgregarComidasComponent, NuevaComidaComponent],
+  imports: [RouterModule, CabeceraComponent, FontAwesomeModule, AgregarComidasComponent, NuevaComidaComponent, SelectorBaseComponent, SelectorTipoComponent],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ComidasComponent implements OnInit {
@@ -162,8 +164,7 @@ export class ComidasComponent implements OnInit {
 
   tipoActual = computed(() => this.data()?.[0]?.tipo ?? 1);
 
-  cambiaTipo(valor: string): void {
-    const tipo = Number(valor);
+  cambiaTipo(tipo: number): void {
     const comida = this.currentMeal();
     if (!comida) return;
     this.comidasService.cambiaTipoComida(comida, tipo).subscribe({

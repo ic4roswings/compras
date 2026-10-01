@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Comidas, Producto, Pendiente, Lista, BaseComida
+from .models import ComidaIngrediente, Producto, Pendiente, Lista
 from .models_gastos import CategoriaResumen, Operaciones, OperacionesHistorico
 
 class ProductoSerializer(serializers.ModelSerializer):
@@ -41,26 +41,28 @@ class ListaSerializer(serializers.ModelSerializer):
         fields = ['id', 'cantidad', 'producto', 'unidades']
 
 class FinalComidaSerializer(serializers.ModelSerializer):
+    """Un ingrediente de una comida con los datos del encabezado (misma forma que la tabla anterior)."""
 
     producto = SubProductoSerializer(many=False)
-    base = serializers.SlugRelatedField(slug_field='nombre', read_only=True)
+    comida = serializers.CharField(source='comida.nombre', read_only=True)
+    tipo = serializers.IntegerField(source='comida.tipo', read_only=True)
+    base = serializers.CharField(source='comida.base.nombre', read_only=True, default=None)
 
     class Meta:
-        model = Comidas
+        model = ComidaIngrediente
         fields = ['id', 'comida', 'tipo', 'base', 'producto', 'cantidad', 'unidades']
 
-class InsertaComidaSerializer(serializers.ModelSerializer):
 
+class InsertaComidaSerializer(serializers.Serializer):
+    """Valida un ingrediente a agregar; `tipo` y `base` son opcionales y afectan al encabezado de la comida."""
 
-    class Meta:
-        model = Comidas
-        fields = ['comida', 'tipo', 'producto', 'cantidad', 'unidades']
+    comida = serializers.CharField(max_length=50)
+    producto = serializers.PrimaryKeyRelatedField(queryset=Producto.objects.all())
+    cantidad = serializers.IntegerField()
+    unidades = serializers.CharField(max_length=50, required=False, allow_blank=True, default='')
+    tipo = serializers.ChoiceField(choices=[1, 2], required=False)
+    base = serializers.CharField(max_length=50, required=False, allow_blank=True, allow_null=True)
 
-
-class ComidaSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Comidas
-        fields = ['comida']
 
 class CategoriaResumenSerializer(serializers.ModelSerializer):
     class Meta:

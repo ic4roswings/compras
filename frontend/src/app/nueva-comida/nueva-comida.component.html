@@ -25,23 +25,27 @@
 
         <!-- Base -->
         <label class="form-label text-muted small uppercase" for="baseComida">Base (pollo, res, pavo...)</label>
-        <input id="baseComida" type="text" class="form-control modern-input mb-1" list="basesExistentes"
-          maxlength="50" placeholder="Elige una o escribe una nueva" autocomplete="off"
+        <input id="baseComida" type="text" class="form-control modern-input mb-2"
+          maxlength="50" placeholder="Elige una o escribe una nueva, p. ej. Pollo" autocomplete="off"
           [value]="base()" (input)="base.set($any($event.target).value)">
-        <datalist id="basesExistentes">
-          @for (b of basesExistentes(); track b) {
-          <option [value]="b"></option>
+        @if (basesVisibles().length > 0) {
+        <div class="d-flex flex-wrap gap-2 mb-1">
+          @for (b of basesVisibles(); track b) {
+          <button type="button" class="btn tipo-btn base-chip" [class.seleccionado]="esBaseElegida(b)"
+            (click)="elegirBase(b)">{{ b }}</button>
           }
-        </datalist>
-        <div class="text-muted small mb-3">Si no existe en el catálogo, se crea. En una comida existente, vacío conserva su base.</div>
+        </div>
+        }
+        <div class="text-muted small mb-3">En una comida que ya existe, déjalo vacío para conservar su base.</div>
 
         <!-- Tipo -->
-        <label class="form-label text-muted small uppercase" for="tipoComida">Tipo</label>
-        <select id="tipoComida" class="form-select modern-input mb-1"
-          (change)="tipo.set(+$any($event.target).value)">
-          <option value="1" [selected]="(tipo() ?? 1) === 1">Entre semana</option>
-          <option value="2" [selected]="tipo() === 2">Fin de semana</option>
-        </select>
+        <label class="form-label text-muted small uppercase">Tipo</label>
+        <div class="d-flex gap-2 mb-1">
+          <button type="button" class="btn tipo-btn flex-fill py-2" [class.seleccionado]="(tipo() ?? 1) === 1"
+            (click)="tipo.set(1)">Entre semana</button>
+          <button type="button" class="btn tipo-btn flex-fill py-2" [class.seleccionado]="tipo() === 2"
+            (click)="tipo.set(2)">Fin de semana</button>
+        </div>
         <div class="text-muted small mb-4">Si la comida ya existe, conserva su tipo salvo que lo cambies aquí.</div>
 
         <!-- Buscar producto -->

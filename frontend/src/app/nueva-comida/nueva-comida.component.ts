@@ -51,6 +51,21 @@ export class NuevaComidaComponent {
   base = signal('');
   basesExistentes = signal<string[]>([]);
 
+  // Bases ya usadas que coinciden con lo escrito (todas si el campo está vacío)
+  basesVisibles = computed(() => {
+    const q = normaliza(this.base());
+    return q ? this.basesExistentes().filter(b => normaliza(b).includes(q)) : this.basesExistentes();
+  });
+
+  esBaseElegida(base: string): boolean {
+    return normaliza(base) === normaliza(this.base());
+  }
+
+  // Clic en una base existente: la elige; otro clic sobre la misma la quita
+  elegirBase(base: string) {
+    this.base.set(this.esBaseElegida(base) ? '' : base);
+  }
+
   // Resultados de la búsqueda: sin acentos, sin repetir los ya agregados
   sugerencias = computed(() => {
     const q = normaliza(this.busqueda().trim());

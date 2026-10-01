@@ -1,0 +1,15 @@
+<div class="dropdown w-100">
+  <button class="btn modern-btn-secondary w-100 d-flex justify-content-between align-items-center p-2 px-3"
+    type="button" data-bs-toggle="dropdown" [attr.data-bs-popper-config]="popper()">
+    <div class="d-flex align-items-center gap-2">
+      <fa-icon [icon]="faCalendarDay" class="text-white-50"></fa-icon>
+      <span class="text-white-50 small uppercase font-weight-bold d-none d-sm-inline">Tipo:</span>
+      <span class="fw-bold">{{ etiqueta() }}</span>
+    </div>
+    <fa-icon [icon]="faChevronDown" class="small opacity-50"></fa-icon>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-dark glass-dropdown w-100 shadow-lg mt-2">
+    <li><a class="dropdown-item py-2" [class.activa]="valor() === 1" (click)="cambia.emit(1)">Entre semana</a></li>
+    <li><a class="dropdown-item py-2" [class.activa]="valor() === 2" (click)="cambia.emit(2)">Fin de semana</a></li>
+  </ul>
+</div>

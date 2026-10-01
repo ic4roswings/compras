@@ -4,8 +4,8 @@ import os
 from rest_framework.permissions import IsAuthenticated
 
 from . import settings
-from .models import Comidas, Producto, Pendiente, Lista, Encargo, HistorialComida, BaseComida
-from .serializers import AgregaPendienteSerializer, ComidaSerializer, FinalComidaSerializer, InsertaComidaSerializer, ProductoSerializer, PendienteSerializer, ListaSerializer, FinalListaSerializer, CategoriaResumenSerializer, PeriodoSerializer, OperacionSerializer, OperacionHistoricoSerializer, OperacionSerializerNoId
+from .models import Comida, ComidaIngrediente, Producto, Pendiente, Lista, Encargo, HistorialComida, BaseComida
+from .serializers import AgregaPendienteSerializer, FinalComidaSerializer, InsertaComidaSerializer, ProductoSerializer, PendienteSerializer, ListaSerializer, FinalListaSerializer, CategoriaResumenSerializer, PeriodoSerializer, OperacionSerializer, OperacionHistoricoSerializer, OperacionSerializerNoId
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
@@ -401,79 +401,67 @@ class GeneraComidaView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, comida):
-        listado = Comidas.objects.filter(comida__unaccent__icontains=comida).select_related('producto').order_by('producto__donde', 'producto__nombre', 'id')
+        listado = (ComidaIngrediente.objects
+                   .filter(comida__nombre__unaccent__icontains=comida)
+                   .select_related('producto', 'comida__base')
+                   .order_by('producto__donde', 'producto__nombre', 'id'))
         serializer = FinalComidaSerializer(listado, many=True)
         return Response(serializer.data)
 
 
 class ComidasUnicasView(APIView):
     def get(self, request):
-        # Obtener comidas únicas
-        comidas_unicas = Comidas.objects.values('comida').distinct().order_by('comida')
-        serializer = ComidaSerializer(comidas_unicas, many=True)  
-        return Response(serializer.data)
-    
+        comidas = Comida.objects.order_by('nombre').values('id', 'nombre')
+        return Response([{'id': c['id'], 'comida': c['nombre']} for c in comidas])
+
+
 class AgregaComidaView(APIView):
+    """Agrega ingredientes a comidas (crea el encabezado si no existe). `tipo`/`base` solo cambian si vienen."""
     permission_classes = [IsAuthenticated]
 
     def post(self, request, format=None):
         if not isinstance(request.data, list):
             return Response({'error': 'Expected a list of items'}, status=status.HTTP_400_BAD_REQUEST)
 
+        serializer = InsertaComidaSerializer(data=request.data, many=True)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
         with transaction.atomic():
-            # tipo de cada comida: el enviado, o el que ya tiene, o 1 (entre semana)
-            tipos = {}
-            for data in request.data:
-                nombre = data.get('comida')
-                if data.get('tipo') is not None:
-                    tipos[nombre] = data['tipo']
-                elif nombre not in tipos:
-                    existente = Comidas.objects.filter(comida=nombre).values_list('tipo', flat=True).first()
-                    tipos[nombre] = existente or 1
-            # base de cada comida: la enviada (texto; vacío = quitarla) o la que ya tiene
-            bases = {}
-            for data in request.data:
-                nombre = data.get('comida')
-                if data.get('base') is not None:
-                    bases[nombre] = services.obtener_o_crear_base(data['base'])
-                elif nombre not in bases:
-                    bases[nombre] = BaseComida.objects.filter(comidas__comida=nombre).first()
-            for nombre, tipo in tipos.items():
-                if tipo not in (1, 2):
-                    return Response({'error': 'Tipo inválido'}, status=status.HTTP_400_BAD_REQUEST)
-                Comidas.objects.filter(comida=nombre).update(tipo=tipo)
+            encabezados = {}
+            for item in serializer.validated_data:
+                nombre = item['comida']
+                comida = encabezados.get(nombre)
+                if comida is None:
+                    comida, _ = Comida.objects.get_or_create(nombre=nombre)
+                    encabezados[nombre] = comida
 
-            for data in request.data:
-                data = {**data, 'tipo': tipos[data.get('comida')]}
-                comida = Comidas.objects.filter(
-                    producto_id=data.get('producto'), 
-                    comida=data.get('comida')
-                ).first()
+                if item.get('tipo') is not None:
+                    comida.tipo = item['tipo']
+                if item.get('base') is not None:
+                    comida.base = services.obtener_o_crear_base(item['base'])
+                comida.save()
 
-                if comida:
-                    serializer = InsertaComidaSerializer(comida, data=data)
-                else:
-                    serializer = InsertaComidaSerializer(data=data)
-
-                if serializer.is_valid():
-                    serializer.save()
-                else:
-                    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-            for nombre, base in bases.items():
-                Comidas.objects.filter(comida=nombre).update(base=base)
+                ComidaIngrediente.objects.update_or_create(
+                    comida=comida, producto=item['producto'],
+                    defaults={'cantidad': item['cantidad'], 'unidades': item['unidades']},
+                )
 
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 class BorraComidaView(APIView):
+    """Quita un producto de una comida; si era el último, la comida también se elimina."""
     permission_classes = [IsAuthenticated]
 
     def delete(self, request, comida, id, format=None):
-        try:
-            comidas = Comidas.objects.get(producto=id, comida=comida)
-        except Encargo.DoesNotExist:
+        ingrediente = (ComidaIngrediente.objects
+                       .filter(comida__nombre=comida, producto_id=id).select_related('comida').first())
+        if ingrediente is None:
             return Response(status=status.HTTP_400_BAD_REQUEST)
-        comidas.delete()
+        encabezado = ingrediente.comida
+        ingrediente.delete()
+        if not encabezado.ingredientes.exists():
+            encabezado.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
@@ -524,7 +512,7 @@ class BorraComidaCompletaView(APIView):
     permission_classes = [IsAuthenticated]
 
     def delete(self, request, comida, format=None):
-        borrados, _ = Comidas.objects.filter(comida=comida).delete()
+        borrados, _ = Comida.objects.filter(nombre=comida).delete()
         if borrados == 0:
             return Response(status=status.HTTP_404_NOT_FOUND)
         return Response(status=status.HTTP_204_NO_CONTENT)
@@ -721,11 +709,12 @@ class RegistraComidaHechaView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, comida, format=None):
-        if not Comidas.objects.filter(comida=comida).exists():
+        encabezado = Comida.objects.filter(nombre=comida).first()
+        if encabezado is None:
             return Response({'error': 'Comida no encontrada'}, status=status.HTTP_404_NOT_FOUND)
         # Una comida cuenta una sola vez por día (evita doble clic o correcciones de la lista)
-        if not HistorialComida.objects.filter(comida=comida, fecha__date=timezone.localdate()).exists():
-            HistorialComida.objects.create(comida=comida)
+        if not HistorialComida.objects.filter(comida=encabezado, fecha__date=timezone.localdate()).exists():
+            HistorialComida.objects.create(comida=encabezado, nombre=encabezado.nombre)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
@@ -751,7 +740,7 @@ class CambiaTipoComidaView(APIView):
         tipo = request.data.get('tipo')
         if tipo not in (1, 2):
             return Response({'error': 'Tipo inválido'}, status=status.HTTP_400_BAD_REQUEST)
-        actualizadas = Comidas.objects.filter(comida=comida).update(tipo=tipo)
+        actualizadas = Comida.objects.filter(nombre=comida).update(tipo=tipo)
         if not actualizadas:
             return Response({'error': 'Comida no encontrada'}, status=status.HTTP_404_NOT_FOUND)
         return Response(status=status.HTTP_204_NO_CONTENT)
@@ -765,9 +754,11 @@ class CambiaBaseComidaView(APIView):
         base = request.data.get('base')
         if base is not None and not isinstance(base, str):
             return Response({'error': 'Base inválida'}, status=status.HTTP_400_BAD_REQUEST)
-        if not Comidas.objects.filter(comida=comida).exists():
+        encabezado = Comida.objects.filter(nombre=comida).first()
+        if encabezado is None:
             return Response({'error': 'Comida no encontrada'}, status=status.HTTP_404_NOT_FOUND)
-        Comidas.objects.filter(comida=comida).update(base=services.obtener_o_crear_base(base))
+        encabezado.base = services.obtener_o_crear_base(base)
+        encabezado.save(update_fields=['base'])
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 

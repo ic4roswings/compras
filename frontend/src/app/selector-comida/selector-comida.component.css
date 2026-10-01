@@ -1,0 +1,73 @@
+.modern-btn-secondary {
+    background: var(--glass-surface);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    font-weight: 600;
+    transition: all var(--transition-fast);
+}
+
+.modern-btn-secondary:hover {
+    background: var(--glass-surface-hover);
+    border-color: var(--primary);
+}
+
+.glass-dropdown {
+    background: rgba(30, 30, 30, 0.95) !important;
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 12px;
+    z-index: 9999 !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+}
+
+.glass-dropdown .dropdown-item {
+    transition: all 0.2s;
+    border-radius: 8px;
+    margin: 2px 8px;
+    width: auto;
+    color: var(--text-secondary);
+    cursor: pointer;
+}
+
+.glass-dropdown .dropdown-item:hover,
+.glass-dropdown .dropdown-item.activa {
+    background: var(--primary);
+    color: white;
+    transform: translateX(5px);
+}
+
+.search-box {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.search-icon {
+    position: absolute;
+    left: 12px;
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 0.9rem;
+}
+
+.search-input {
+    padding-left: 35px !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: white !important;
+    border-radius: 8px !important;
+    font-size: 0.9rem;
+}
+
+.search-input:focus {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border-color: var(--primary) !important;
+    box-shadow: 0 0 0 0.25rem var(--primary-glow) !important;
+}
+
+.sticky-top {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
