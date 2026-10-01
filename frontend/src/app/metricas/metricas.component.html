@@ -1,0 +1,127 @@
+<section class="page-layout metricas-page animate-fade-in">
+  <app-cabecera titulo="Métricas"></app-cabecera>
+
+  <div class="scroll-content">
+    <div class="container h-100 d-flex flex-column py-3">
+
+      <!-- Filters Header -->
+      <div class="flex-shrink-0 animate-slide-in header-controls">
+        <div class="glass-card mb-4 p-3">
+          <div class="row g-2 align-items-center">
+            <!-- Search -->
+            <div class="col-md-7 col-12">
+              <div class="input-group search-group">
+                <span class="input-group-text bg-transparent border-end-0 text-white-50 ms-2">
+                  <fa-icon [icon]="faSearch"></fa-icon>
+                </span>
+                <input type="text" class="form-control modern-input border-start-0 ps-1"
+                  [placeholder]="vista() === 'productos' ? 'Buscar producto...' : 'Buscar comida...'"
+                  [value]="busqueda()" (input)="busqueda.set($any($event.target).value)">
+                @if (busqueda()) {
+                <button class="btn modern-input border-start-0 text-white-50 pe-3" type="button"
+                  (click)="busqueda.set('')">
+                  <fa-icon [icon]="faTimes"></fa-icon>
+                </button>
+                }
+              </div>
+            </div>
+            <!-- Vista -->
+            <div class="col-md-5 col-12">
+              <div class="dropdown w-100">
+                <button
+                  class="btn modern-btn-secondary w-100 d-flex justify-content-between align-items-center p-2 px-3"
+                  type="button" data-bs-toggle="dropdown">
+                  <div class="d-flex align-items-center gap-2">
+                    <fa-icon [icon]="faFilter" class="text-white-50"></fa-icon>
+                    <span class="text-white-50 small uppercase font-weight-bold d-none d-sm-inline">Ver:</span>
+                    <span class="fw-bold">{{ vista() === 'productos' ? 'Productos' : 'Comidas' }}</span>
+                  </div>
+                  <fa-icon [icon]="faChevronDown" class="small opacity-50"></fa-icon>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-dark glass-dropdown w-100 shadow-lg mt-2">
+                  <li><a class="dropdown-item py-2" (click)="cambiaVista('productos')">Productos</a></li>
+                  <li><a class="dropdown-item py-2" (click)="cambiaVista('comidas')">Comidas</a></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Table Content -->
+      <div class="table-scroll bg-transparent border-0 shadow-none">
+        @if (error()) {
+        <div class="glass-card p-4 text-center text-danger">{{ error() }}</div>
+        } @else if (vista() === 'productos') {
+        <div class="table-responsive glass-card">
+          <table class="table modern-table mb-0">
+            <thead>
+              <tr>
+                <th>Producto</th>
+                <th class="text-center">Tienda</th>
+                <th class="text-center">Veces</th>
+                <th class="text-center">Cada (días)</th>
+                <th class="text-center">Última</th>
+                <th class="text-center">Hace (días)</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (p of productosFiltrados(); track p.nombre + p.donde) {
+              <tr class="modern-tr">
+                <td class="product-name align-middle">{{ p.nombre }}</td>
+                <td class="text-center align-middle">
+                  <span class="badge-store" [attr.data-store]="p.donde">{{ p.donde }}</span>
+                </td>
+                <td class="text-center align-middle">{{ p.veces }}</td>
+                <td class="text-center align-middle">{{ p.promedio_dias ?? '—' }}</td>
+                <td class="text-center align-middle">{{ p.ultima }}</td>
+                <td class="text-center align-middle">{{ p.dias_desde_ultima }}</td>
+              </tr>
+              } @empty {
+              <tr>
+                <td colspan="6" class="p-5 text-center text-muted">
+                  <div class="opacity-25 mb-3"><fa-icon [icon]="faChartLine" size="3x"></fa-icon></div>
+                  <p>Sin datos todavía.</p>
+                </td>
+              </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        } @else {
+        <div class="table-responsive glass-card">
+          <table class="table modern-table mb-0">
+            <thead>
+              <tr>
+                <th>Comida</th>
+                <th class="text-center">Veces</th>
+                <th class="text-center">Cada (días)</th>
+                <th class="text-center">Última</th>
+                <th class="text-center">Hace (días)</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (c of comidasFiltradas(); track c.comida) {
+              <tr class="modern-tr">
+                <td class="product-name align-middle">{{ c.comida }}</td>
+                <td class="text-center align-middle">{{ c.veces }}</td>
+                <td class="text-center align-middle">{{ c.promedio_dias ?? '—' }}</td>
+                <td class="text-center align-middle">{{ c.ultima }}</td>
+                <td class="text-center align-middle">{{ c.dias_desde_ultima }}</td>
+              </tr>
+              } @empty {
+              <tr>
+                <td colspan="5" class="p-5 text-center text-muted">
+                  <div class="opacity-25 mb-3"><fa-icon [icon]="faChartLine" size="3x"></fa-icon></div>
+                  <p>Sin datos todavía.</p>
+                </td>
+              </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        }
+      </div>
+    </div>
+  </div>
+</section>

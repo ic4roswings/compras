@@ -45,6 +45,11 @@ export class NuevaComidaComponent {
   items = signal<ItemComida[]>([]);
   comidasExistentes = signal<string[]>([]);
   guardando = signal(false);
+  // null = no tocar el tipo (una comida existente conserva el suyo; una nueva queda entre semana)
+  tipo = signal<number | null>(null);
+  // Texto libre: se elige una base del catálogo o se escribe una nueva (vacío = no tocar la base)
+  base = signal('');
+  basesExistentes = signal<string[]>([]);
 
   // Resultados de la búsqueda: sin acentos, sin repetir los ya agregados
   sugerencias = computed(() => {
@@ -69,6 +74,12 @@ export class NuevaComidaComponent {
     this.busqueda.set('');
     this.items.set([]);
     this.guardando.set(false);
+    this.tipo.set(null);
+    this.base.set('');
+    this.comidasService.bases$().subscribe({
+      next: (data) => this.basesExistentes.set((data || []).map(b => b.nombre)),
+      error: () => this.basesExistentes.set([])
+    });
 
     this.comidasService.obtenerComidasUnicas().subscribe({
       next: (data: { comida: string }[]) => this.comidasExistentes.set((data || []).map(c => c.comida)),
@@ -123,7 +134,7 @@ export class NuevaComidaComponent {
       unidades: i.unidades
     }));
 
-    this.comidasService.agregaProductosAComida(comida, payload).subscribe({
+    this.comidasService.agregaProductosAComida(comida, payload, this.tipo(), this.base().trim()).subscribe({
       next: () => {
         this.guardando.set(false);
         Swal.fire({

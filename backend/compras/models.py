@@ -39,9 +39,23 @@ class Encargo(models.Model):
     def __str__(self):
         return self.producto.nombre
 
+class BaseComida(models.Model):
+    """Catálogo de bases de las comidas (pollo, res, pavo...). Se alimenta al crear/editar comidas."""
+    nombre = models.CharField(max_length=50, unique=True)
+
+    def __str__(self):
+        return self.nombre
+
+
 class Comidas(models.Model):
+    TIPOS = [(1, 'Entre semana'), (2, 'Fin de semana')]
+
     id = models.AutoField(primary_key=True)
     comida = models.CharField(max_length=50)
+    # Igual en todas las filas (ingredientes) de una misma comida
+    tipo = models.PositiveSmallIntegerField(choices=TIPOS, default=1)
+    # Igual en todas las filas de una misma comida; null = sin base asignada
+    base = models.ForeignKey(BaseComida, null=True, blank=True, on_delete=models.SET_NULL, related_name='comidas')
     producto = models.ForeignKey(Producto, on_delete=models.CASCADE, related_name='productoC')
     cantidad = models.IntegerField()
     unidades = models.CharField(max_length=50, default='')
@@ -57,4 +71,26 @@ class Pendiente(models.Model):
         return self.pendiente
 
 
+class HistorialCompra(models.Model):
+    """Una compra de un producto: se registra al vaciar Encargo en transferir_lista_a_encargos()."""
+    id = models.AutoField(primary_key=True)
+    producto = models.ForeignKey(Producto, on_delete=models.SET_NULL, null=True, related_name='historial')
+    nombre = models.CharField(max_length=150)
+    donde = models.CharField(max_length=30, default='')
+    cantidad = models.IntegerField()
+    unidades = models.CharField(max_length=50, default='')
+    fecha = models.DateTimeField(auto_now_add=True, db_index=True)
+
+    def __str__(self):
+        return f'{self.nombre} ({self.fecha:%Y-%m-%d})'
+
+
+class HistorialComida(models.Model):
+    """Una vez que se hizo una comida: se registra al agregar sus ingredientes a la lista."""
+    id = models.AutoField(primary_key=True)
+    comida = models.CharField(max_length=50, db_index=True)
+    fecha = models.DateTimeField(auto_now_add=True, db_index=True)
+
+    def __str__(self):
+        return f'{self.comida} ({self.fecha:%Y-%m-%d})'
 

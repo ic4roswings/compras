@@ -105,6 +105,10 @@ export class CabeceraComponent implements OnInit {
     this.router.navigate(['pendientes']);
   }
 
+  navigateMetricas() {
+    this.router.navigate(['metricas']);
+  }
+
   salir() {
     this.global.salir();
   }

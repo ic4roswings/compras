@@ -1,7 +1,9 @@
+import random
 from django.db import transaction
-from django.db.models import Sum, Count
+from django.db.models import Sum, Count, Max, Min
 from typing import List, Optional
-from .models import Lista, Encargo, Producto
+from django.utils import timezone
+from .models import Lista, Encargo, Producto, Comidas, BaseComida, HistorialCompra, HistorialComida
 from .models_gastos import Operaciones, OperacionesHistorico
 from decimal import Decimal
 
@@ -40,6 +42,124 @@ def unificar_encargos_walmart() -> None:
                 cantidad=cantidad_nueva
             )
 
+def registrar_compras(encargos) -> None:
+    """Guarda en HistorialCompra cada encargo recibido (snapshot de nombre/tienda/cantidad)."""
+    HistorialCompra.objects.bulk_create([
+        HistorialCompra(
+            producto=e.producto,
+            nombre=e.producto.nombre,
+            donde=e.producto.donde,
+            cantidad=e.cantidad,
+            unidades=e.unidades,
+        ) for e in encargos.select_related('producto')
+    ])
+
+
+def _frecuencia(fechas: List) -> dict:
+    """Veces, primera/última fecha y días promedio entre ocurrencias (fechas ordenadas ascendente)."""
+    dias = sorted({timezone.localtime(f).date() for f in fechas})
+    intervalos = [(b - a).days for a, b in zip(dias, dias[1:])]
+    ultima = dias[-1]
+    return {
+        'veces': len(fechas),
+        'primera': dias[0],
+        'ultima': ultima,
+        'dias_desde_ultima': (timezone.localdate() - ultima).days,
+        'promedio_dias': round(sum(intervalos) / len(intervalos), 1) if intervalos else None,
+    }
+
+
+def metricas_productos() -> List[dict]:
+    """Frecuencia de compra por producto (por nombre), la más comprada primero."""
+    agrupado = {}
+    for nombre, donde, fecha in HistorialCompra.objects.order_by('fecha').values_list('nombre', 'donde', 'fecha'):
+        agrupado.setdefault((nombre, donde), []).append(fecha)
+    resultado = [{'nombre': n, 'donde': d, **_frecuencia(f)} for (n, d), f in agrupado.items()]
+    return sorted(resultado, key=lambda r: (-r['veces'], r['nombre']))
+
+
+def metricas_comidas() -> List[dict]:
+    """Frecuencia con que se hace cada comida, la más frecuente primero."""
+    agrupado = {}
+    for comida, fecha in HistorialComida.objects.order_by('fecha').values_list('comida', 'fecha'):
+        agrupado.setdefault(comida, []).append(fecha)
+    resultado = [{'comida': c, **_frecuencia(f)} for c, f in agrupado.items()]
+    return sorted(resultado, key=lambda r: (-r['veces'], r['comida']))
+
+
+def obtener_o_crear_base(nombre: Optional[str]) -> Optional[BaseComida]:
+    """Busca la base en el catálogo (sin importar acentos ni mayúsculas) o la crea. Vacío = sin base."""
+    nombre = (nombre or '').strip()
+    if not nombre:
+        return None
+    existente = BaseComida.objects.filter(nombre__unaccent__iexact=nombre).first()
+    return existente or BaseComida.objects.create(nombre=nombre)
+
+
+COMIDAS_RECIENTES = 3  # cuántas de las últimas comidas hechas se miran para no repetir base
+
+
+def sugerir_comidas(por_tipo: int = 1, excluir: Optional[List[str]] = None) -> List[dict]:
+    """
+    Sugiere comidas que llevan más tiempo sin hacerse: `por_tipo` de entre semana (tipo 1) y
+    `por_tipo` de fin de semana (tipo 2). Las que nunca se han registrado van primero (aleatorias);
+    el resto, de la más antigua a la más reciente. Se prefieren las de una base distinta a la de
+    las últimas comidas hechas (y distinta entre sí); si no hay alternativa, se permite repetir.
+    Si un tipo no tiene suficientes comidas, se completa con las mejores del otro.
+    `excluir` son comidas ya sugeridas (para "otras sugerencias"); si no quedan suficientes, se ignora.
+    """
+    ultimas = dict(
+        HistorialComida.objects.values('comida').annotate(ultima=Max('fecha')).values_list('comida', 'ultima')
+    )
+    tipos = dict(
+        Comidas.objects.values('comida').annotate(tipo=Min('tipo')).values_list('comida', 'tipo')
+    )
+    bases = {}
+    for nombre, base in Comidas.objects.exclude(base__isnull=True).values_list('comida', 'base__nombre'):
+        bases[nombre] = base
+
+    recientes = {
+        bases[c] for c in HistorialComida.objects.order_by('-fecha').values_list('comida', flat=True)[:COMIDAS_RECIENTES]
+        if c in bases
+    }
+
+    disponibles = {n: t for n, t in tipos.items() if n not in set(excluir or ())}
+    if len(disponibles) >= 2 * por_tipo:
+        tipos = disponibles
+
+    hoy = timezone.localdate()
+    nunca, hechas = [], []
+    for nombre, tipo in tipos.items():
+        r = {'comida': nombre, 'tipo': tipo, 'base': bases.get(nombre)}
+        if nombre in ultimas:
+            r['dias_desde_ultima'] = (hoy - timezone.localtime(ultimas[nombre]).date()).days
+            hechas.append(r)
+        else:
+            r['dias_desde_ultima'] = None
+            nunca.append(r)
+    random.shuffle(nunca)
+    hechas.sort(key=lambda r: -r['dias_desde_ultima'])
+    ordenadas = nunca + hechas
+    # Las de base reciente quedan al final (se usan solo si no hay otras)
+    ordenadas = [r for r in ordenadas if r['base'] not in recientes] + [r for r in ordenadas if r['base'] in recientes]
+
+    elegidas, usadas = [], set(recientes)
+    for tipo in (1, 2):
+        candidatas = [r for r in ordenadas if r['tipo'] == tipo and r not in elegidas]
+        for _ in range(por_tipo):
+            if not candidatas:
+                break
+            r = next((c for c in candidatas if c['base'] not in usadas), candidatas[0])
+            candidatas.remove(r)
+            elegidas.append(r)
+            if r['base']:
+                usadas.add(r['base'])
+    faltan = 2 * por_tipo - len(elegidas)
+    if faltan > 0:
+        elegidas += [r for r in ordenadas if r not in elegidas][:faltan]
+    return elegidas
+
+
 def transferir_lista_a_encargos(modo_limpieza: str = 'todo') -> None:
     """
     Transfers all items from Lista to Encargo.
@@ -49,9 +169,12 @@ def transferir_lista_a_encargos(modo_limpieza: str = 'todo') -> None:
     - 'nada': Does not clear any existing Encargos (additive).
     """
     with transaction.atomic():
+        # Lo que se va a borrar de Encargo (ya con las ediciones del usuario) cuenta como comprado
         if modo_limpieza == 'todo':
+            registrar_compras(Encargo.objects.all())
             Encargo.objects.all().delete()
         elif modo_limpieza == 'no_costco':
+            registrar_compras(Encargo.objects.exclude(producto__donde='Costco'))
             exclusiones = Encargo.objects.exclude(producto__donde='Costco')
             Encargo.objects.filter(id__in=exclusiones.values_list('id', flat=True)).delete()
         # if 'nada', we do nothing

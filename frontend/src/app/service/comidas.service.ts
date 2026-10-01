@@ -9,6 +9,7 @@ import { ListaI } from '../interface/lista.interface';
 import { AgregaListaI } from '../interface/agregalista.interface';
 import { ComidasUnicas } from '../interface/comidas-unicas.interface';
 import { Comidas } from '../interface/comidas.interface';
+import { BaseComida } from '../interface/base-comida.interface';
 import { AgregaComida } from '../interface/agrega-comida.interface';
 
 @Injectable({
@@ -57,9 +58,11 @@ export class ComidasService {
       );
 
   // Varios productos a una misma comida en una sola petición (el backend la procesa en una transacción)
-  agregaProductosAComida = (comida: string, items: { producto: number; cantidad: number; unidades: string }[]): Observable<AgregaComida[]> => {
+  agregaProductosAComida = (comida: string, items: { producto: number; cantidad: number; unidades: string }[], tipo?: number | null, base?: string | null): Observable<AgregaComida[]> => {
     const payload: AgregaComida[] = items.map(i => ({
       comida,
+      ...(tipo ? { tipo } : {}),
+      ...(base ? { base } : {}),
       producto: i.producto,
       cantidad: i.cantidad,
       unidades: i.unidades
@@ -140,6 +143,24 @@ export class ComidasService {
       .pipe(
         catchError(this.handleError)
       );
+  }
+
+  // Catálogo de bases (pollo, res, pavo...)
+  bases$ = (): Observable<BaseComida[]> => this.http.get<BaseComida[]>(`${this.apiUrl}bases/`);
+
+  // Asigna la base a la comida (texto; si no existe en el catálogo se crea; vacío la quita)
+  cambiaBaseComida(comida: string, base: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}comidas/${encodeURIComponent(comida)}/base/`, { base });
+  }
+
+  // Cambia el tipo de la comida (1 entre semana, 2 fin de semana)
+  cambiaTipoComida(comida: string, tipo: number): Observable<any> {
+    return this.http.post(`${this.apiUrl}comidas/${encodeURIComponent(comida)}/tipo/`, { tipo });
+  }
+
+  // Registra que se hizo la comida (alimenta las métricas)
+  registraComidaHecha(comida: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}comidas/${encodeURIComponent(comida)}/hecha/`, {});
   }
 
   filter$ = (donde: Donde, response: Comidas[]): Observable<Comidas[]> =>

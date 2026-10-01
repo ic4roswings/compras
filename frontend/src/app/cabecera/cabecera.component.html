@@ -20,6 +20,7 @@
                 <a (click)="navigateChecklist()" class="nav-link modern-link">Checklist</a>
                 <a (click)="navigateComidas()" class="nav-link modern-link">Comidas</a>
                 <a (click)="navigatePendientes()" class="nav-link modern-link">Pendientes</a>
+                <a (click)="navigateMetricas()" class="nav-link modern-link">Métricas</a>
                 @if (vectores.desfasados() > 0) {
                 <a (click)="resync()" class="nav-link resync-btn" [class.sincronizando]="vectores.sincronizando()"
                     [title]="vectores.desfasados() + ' producto(s) sin sincronizar en la búsqueda. Clic para sincronizar.'">

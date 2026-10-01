@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Comidas, Producto, Pendiente, Lista
+from .models import Comidas, Producto, Pendiente, Lista, BaseComida
 from .models_gastos import CategoriaResumen, Operaciones, OperacionesHistorico
 
 class ProductoSerializer(serializers.ModelSerializer):
@@ -43,17 +43,18 @@ class ListaSerializer(serializers.ModelSerializer):
 class FinalComidaSerializer(serializers.ModelSerializer):
 
     producto = SubProductoSerializer(many=False)
+    base = serializers.SlugRelatedField(slug_field='nombre', read_only=True)
 
     class Meta:
         model = Comidas
-        fields = ['id', 'comida', 'producto', 'cantidad', 'unidades']
+        fields = ['id', 'comida', 'tipo', 'base', 'producto', 'cantidad', 'unidades']
 
 class InsertaComidaSerializer(serializers.ModelSerializer):
 
 
     class Meta:
         model = Comidas
-        fields = ['comida', 'producto', 'cantidad', 'unidades']
+        fields = ['comida', 'tipo', 'producto', 'cantidad', 'unidades']
 
 
 class ComidaSerializer(serializers.ModelSerializer):

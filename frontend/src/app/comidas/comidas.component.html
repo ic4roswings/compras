@@ -48,6 +48,23 @@
             </div>
             @if (currentMeal()) {
             <div class="col-auto">
+              <input type="text" class="form-control modern-input" list="basesComida" maxlength="50"
+                placeholder="Base (pollo, res...)" autocomplete="off" title="Base de la comida" style="width: 170px"
+                [value]="baseActual()" (change)="cambiaBase($any($event.target).value)">
+              <datalist id="basesComida">
+                @for (b of bases(); track b) {
+                <option [value]="b"></option>
+                }
+              </datalist>
+            </div>
+            <div class="col-auto">
+              <select class="form-select modern-input" [value]="tipoActual()" title="Tipo de comida"
+                (change)="cambiaTipo($any($event.target).value)">
+                <option value="1" [selected]="tipoActual() === 1">Entre semana</option>
+                <option value="2" [selected]="tipoActual() === 2">Fin de semana</option>
+              </select>
+            </div>
+            <div class="col-auto">
               <button type="button" (click)="eliminarComidaCompleta()" class="btn-action danger"
                 title="Eliminar comida completa">
                 <fa-icon [icon]="faTrashAlt"></fa-icon>
@@ -57,6 +74,33 @@
           </div>
         </div>
       </div>
+
+      <!-- Sugerencias según el historial -->
+      @if (!currentMeal() && sugerencias().length) {
+      <div class="glass-card mb-4 p-3 animate-slide-in">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <span class="text-white-50 small uppercase">
+            <fa-icon [icon]="faLightbulb" class="me-1"></fa-icon> Sugerencias: hace tiempo que no las haces
+          </span>
+          <button type="button" class="btn modern-btn-secondary px-3 py-1" (click)="cargarSugerencias(true)"
+            title="Pedir otras 2 sugerencias">
+            <fa-icon [icon]="faSyncAlt" class="me-1"></fa-icon> Otras
+          </button>
+        </div>
+        <div class="d-flex flex-wrap gap-2">
+          @for (s of sugerencias(); track s.comida) {
+          <button type="button" class="btn modern-btn-secondary px-3 py-2" (click)="obtenComidas(s.comida)">
+            <span class="fw-bold">{{ s.comida }}</span>
+            <span class="text-white-50 small ms-2">{{ s.tipo === 2 ? 'Fin de semana' : 'Entre semana' }}</span>
+            @if (s.base) {
+            <span class="text-white-50 small ms-2">· {{ s.base }}</span>
+            }
+            <span class="text-white-50 small ms-2">{{ s.dias_desde_ultima === null ? 'nunca' : 'hace ' + s.dias_desde_ultima + ' d' }}</span>
+          </button>
+          }
+        </div>
+      </div>
+      }
 
       <!-- Table Content -->
       <div class="table-scroll bg-transparent border-0 shadow-none">

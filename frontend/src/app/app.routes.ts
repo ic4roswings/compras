@@ -9,6 +9,7 @@ import { EncargadoComponent } from './encargado/encargado.component';
 import { ActualizarComponent } from './actualizar/actualizar.component';
 import { PendientesComponent } from './pendientes/pendientes.component';
 import { ChecklistComponent } from './checklist/checklist.component';
+import { MetricasComponent } from './metricas/metricas.component';
 
 export const routes: Routes = [
     { path: '', component: LoginComponent },
@@ -24,5 +25,6 @@ export const routes: Routes = [
     { path: 'checklist', component: ChecklistComponent },
     { path: 'actualizar/:numero', component: ActualizarComponent },
     { path: 'pendientes', component: PendientesComponent },
+    { path: 'metricas', component: MetricasComponent },
 
 ];

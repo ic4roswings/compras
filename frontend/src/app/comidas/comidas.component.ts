@@ -4,11 +4,13 @@ import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { DataState } from '../enum/data-state.enum';
 import { GlobalService } from '../service/global.service';
 import { ComidasService } from '../service/comidas.service';
+import { MetricasService } from '../service/metricas.service';
+import { SugerenciaComida } from '../interface/metricas.interface';
 import { Comidas } from '../interface/comidas.interface';
 import { CabeceraComponent } from '../cabecera/cabecera.component';
 import Swal from 'sweetalert2';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faPlus, faTrashAlt, faTrash, faEdit, faCartPlus, faUtensils, faTimes, faChevronDown, faBars, faBolt, faSearch } from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faTrashAlt, faTrash, faEdit, faCartPlus, faUtensils, faTimes, faChevronDown, faBars, faBolt, faSearch, faLightbulb, faSyncAlt } from '@fortawesome/free-solid-svg-icons';
 import { AgregarComidasComponent } from '../agregar-comidas/agregar-comidas.component';
 import { NuevaComidaComponent } from '../nueva-comida/nueva-comida.component';
 import { ProductoService } from '../service/producto.service';
@@ -27,6 +29,7 @@ declare var bootstrap: any;
 export class ComidasComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private comidasService = inject(ComidasService);
+  private metricasService = inject(MetricasService);
   private productoService = inject(ProductoService);
   private global = inject(GlobalService);
   private router = inject(Router);
@@ -43,6 +46,8 @@ export class ComidasComponent implements OnInit {
   faTimes = faTimes;
   faBolt = faBolt;
   faSearch = faSearch;
+  faLightbulb = faLightbulb;
+  faSyncAlt = faSyncAlt;
 
   searchInput = viewChild<ElementRef<HTMLInputElement>>('searchInput');
   dropdownBtn = viewChild<ElementRef<HTMLButtonElement>>('dropdownBtn');
@@ -57,6 +62,9 @@ export class ComidasComponent implements OnInit {
   error = signal<string | null>(null);
   currentMeal = signal<string>('');
   comidasUnicas = signal<any>(null);
+  sugerencias = signal<SugerenciaComida[]>([]);
+  bases = signal<string[]>([]);
+  private vistas: string[] = [];
   searchTerm = signal<string>('');
   activeIndex = signal<number>(-1);
   catalogo = signal<ProductoI[]>([]);
@@ -92,6 +100,8 @@ export class ComidasComponent implements OnInit {
       this.data.set([]);
     }
     this.cargarComidasUnicas();
+    this.cargarSugerencias();
+    this.cargarBases();
   }
 
   // El catálogo solo se pide la primera vez que se abre el modal de comida nueva
@@ -108,7 +118,61 @@ export class ComidasComponent implements OnInit {
   // Tras guardar: refresca la lista de comidas y muestra la que se acaba de crear o actualizar
   onNuevaComidaGuardada(comida: string): void {
     this.cargarComidasUnicas();
+    this.cargarSugerencias();
+    this.cargarBases();
     this.obtenComidas(comida);
+  }
+
+  // Comidas que no se han hecho recientemente; si falla simplemente no se muestran
+  // Con `otras` pide 2 distintas a las que ya se vieron; sin él reinicia las exclusiones
+  cargarSugerencias(otras = false): void {
+    const vistas = otras ? [...this.vistas, ...this.sugerencias().map(s => s.comida)] : [];
+    this.metricasService.sugerencias$(vistas).subscribe({
+      next: (data) => {
+        this.vistas = vistas;
+        this.sugerencias.set(data);
+      },
+      error: (err) => console.error('Error al cargar las sugerencias:', err)
+    });
+  }
+
+  // Tipo de la comida seleccionada (1 entre semana, 2 fin de semana); todas sus filas lo comparten
+  baseActual = computed(() => this.data()?.[0]?.base ?? '');
+
+  cargarBases(): void {
+    this.comidasService.bases$().subscribe({
+      next: (data) => this.bases.set((data || []).map(b => b.nombre)),
+      error: (err) => console.error('Error al cargar las bases:', err)
+    });
+  }
+
+  cambiaBase(valor: string): void {
+    const comida = this.currentMeal();
+    const base = valor.trim();
+    if (!comida || base === this.baseActual()) return;
+    this.comidasService.cambiaBaseComida(comida, base).subscribe({
+      next: () => {
+        this.data.update(filas => (filas || []).map(f => ({ ...f, base: base || null })));
+        this.cargarBases();
+        this.cargarSugerencias();
+      },
+      error: () => Swal.fire('Error', 'No se pudo cambiar la base', 'error')
+    });
+  }
+
+  tipoActual = computed(() => this.data()?.[0]?.tipo ?? 1);
+
+  cambiaTipo(valor: string): void {
+    const tipo = Number(valor);
+    const comida = this.currentMeal();
+    if (!comida) return;
+    this.comidasService.cambiaTipoComida(comida, tipo).subscribe({
+      next: () => {
+        this.data.update(filas => (filas || []).map(f => ({ ...f, tipo })));
+        this.cargarSugerencias();
+      },
+      error: () => Swal.fire('Error', 'No se pudo cambiar el tipo', 'error')
+    });
   }
 
   cargarComidasUnicas(): void {
@@ -208,6 +272,13 @@ export class ComidasComponent implements OnInit {
           icon: 'success',
           showConfirmButton: false
         });
+        const nombre = currentData[0]?.comida;
+        if (nombre) {
+          this.comidasService.registraComidaHecha(nombre).subscribe({
+            next: () => this.cargarSugerencias(),
+            error: (e) => console.error('No se pudo registrar la comida hecha:', e)
+          });
+        }
         // Note: original logic updated subject with response. 
         // If response is correct (Comidas[]), setting it.
         if (Array.isArray(response)) {

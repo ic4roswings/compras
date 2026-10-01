@@ -21,7 +21,28 @@
           <option [value]="c"></option>
           }
         </datalist>
-        <div class="text-muted small mb-4">Si ya existe, los productos se suman a esa comida.</div>
+        <div class="text-muted small mb-3">Si ya existe, los productos se suman a esa comida.</div>
+
+        <!-- Base -->
+        <label class="form-label text-muted small uppercase" for="baseComida">Base (pollo, res, pavo...)</label>
+        <input id="baseComida" type="text" class="form-control modern-input mb-1" list="basesExistentes"
+          maxlength="50" placeholder="Elige una o escribe una nueva" autocomplete="off"
+          [value]="base()" (input)="base.set($any($event.target).value)">
+        <datalist id="basesExistentes">
+          @for (b of basesExistentes(); track b) {
+          <option [value]="b"></option>
+          }
+        </datalist>
+        <div class="text-muted small mb-3">Si no existe en el catálogo, se crea. En una comida existente, vacío conserva su base.</div>
+
+        <!-- Tipo -->
+        <label class="form-label text-muted small uppercase" for="tipoComida">Tipo</label>
+        <select id="tipoComida" class="form-select modern-input mb-1"
+          (change)="tipo.set(+$any($event.target).value)">
+          <option value="1" [selected]="(tipo() ?? 1) === 1">Entre semana</option>
+          <option value="2" [selected]="tipo() === 2">Fin de semana</option>
+        </select>
+        <div class="text-muted small mb-4">Si la comida ya existe, conserva su tipo salvo que lo cambies aquí.</div>
 
         <!-- Buscar producto -->
         <label class="form-label text-muted small uppercase" for="buscaProducto">Agregar productos</label>
