@@ -10,6 +10,9 @@ import Swal from 'sweetalert2';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faPlus, faTrashAlt, faTrash, faEdit, faCartPlus, faUtensils, faTimes, faChevronDown, faBars, faBolt, faSearch } from '@fortawesome/free-solid-svg-icons';
 import { AgregarComidasComponent } from '../agregar-comidas/agregar-comidas.component';
+import { NuevaComidaComponent } from '../nueva-comida/nueva-comida.component';
+import { ProductoService } from '../service/producto.service';
+import { ProductoI } from '../interface/producto.interface';
 import { Donde } from '../enum/donde.enum';
 declare var bootstrap: any;
 
@@ -18,12 +21,13 @@ declare var bootstrap: any;
   templateUrl: './comidas.component.html',
   styleUrls: ['./comidas.component.css'],
   standalone: true,
-  imports: [RouterModule, CabeceraComponent, FontAwesomeModule, AgregarComidasComponent],
+  imports: [RouterModule, CabeceraComponent, FontAwesomeModule, AgregarComidasComponent, NuevaComidaComponent],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ComidasComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private comidasService = inject(ComidasService);
+  private productoService = inject(ProductoService);
   private global = inject(GlobalService);
   private router = inject(Router);
 
@@ -43,6 +47,7 @@ export class ComidasComponent implements OnInit {
   searchInput = viewChild<ElementRef<HTMLInputElement>>('searchInput');
   dropdownBtn = viewChild<ElementRef<HTMLButtonElement>>('dropdownBtn');
   mealModal = viewChild(AgregarComidasComponent);
+  nuevaComidaModal = viewChild(NuevaComidaComponent);
 
   readonly DataState = DataState;
 
@@ -54,6 +59,7 @@ export class ComidasComponent implements OnInit {
   comidasUnicas = signal<any>(null);
   searchTerm = signal<string>('');
   activeIndex = signal<number>(-1);
+  catalogo = signal<ProductoI[]>([]);
 
   // Computed state for the UI
   filteredComidas = computed(() => {
@@ -86,6 +92,23 @@ export class ComidasComponent implements OnInit {
       this.data.set([]);
     }
     this.cargarComidasUnicas();
+  }
+
+  // El catálogo solo se pide la primera vez que se abre el modal de comida nueva
+  nuevaComida(): void {
+    this.nuevaComidaModal()?.open();
+    if (this.catalogo().length === 0) {
+      this.productoService.productos$.subscribe({
+        next: (productos) => this.catalogo.set(productos),
+        error: () => Swal.fire('Error', 'No se pudo cargar el catálogo de productos.', 'error')
+      });
+    }
+  }
+
+  // Tras guardar: refresca la lista de comidas y muestra la que se acaba de crear o actualizar
+  onNuevaComidaGuardada(comida: string): void {
+    this.cargarComidasUnicas();
+    this.obtenComidas(comida);
   }
 
   cargarComidasUnicas(): void {
@@ -254,6 +277,44 @@ export class ComidasComponent implements OnInit {
           }
         });
       }
+    });
+  }
+
+  // Elimina la comida seleccionada completa, con todos sus productos
+  eliminarComidaCompleta(): void {
+    const comida = this.currentMeal();
+    if (!comida) return;
+    const productos = this.data()?.length ?? 0;
+
+    Swal.fire({
+      title: `¿Eliminar la comida "${comida}"?`,
+      text: productos > 0
+        ? `Se borrarán la comida y sus ${productos} productos. Esta acción no se puede deshacer.`
+        : 'Se borrará la comida y todos sus productos. Esta acción no se puede deshacer.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: 'var(--primary)',
+      cancelButtonColor: 'var(--secondary)',
+      confirmButtonText: 'Sí, eliminar comida',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (!result.isConfirmed) return;
+
+      this.comidasService.borraComidaCompleta(comida).subscribe({
+        next: () => {
+          this.data.set([]);
+          this.currentMeal.set('');
+          this.cargarComidasUnicas();
+          Swal.fire({
+            title: 'Eliminada',
+            text: `La comida "${comida}" ha sido eliminada.`,
+            icon: 'success',
+            timer: 800,
+            showConfirmButton: false
+          });
+        },
+        error: () => Swal.fire('Error', 'No se pudo eliminar la comida.', 'error')
+      });
     });
   }
 

@@ -117,9 +117,6 @@
                     <button (click)="editar(producto.id)" class="btn-action secondary" title="Edit">
                       <fa-icon [icon]="faEdit"></fa-icon>
                     </button>
-                    <button (click)="agregarComida(producto.id)" class="btn-action info" title="Agregar a comidas">
-                      <fa-icon [icon]="faUtensils" class="small"></fa-icon>
-                    </button>
                   </div>
                 </td>
               </tr>
@@ -140,9 +137,6 @@
               <div class="d-flex flex-wrap gap-2">
                 <button (click)="editar(producto.id)" class="btn btn-sm btn-outline-info px-3" title="Editar">
                   Editar
-                </button>
-                <button (click)="agregarComida(producto.id)" class="btn btn-sm btn-outline-info px-3" title="Comidas">
-                  Comidas
                 </button>
                 <button (click)="agregaLista(producto.id, cantidadMob.value, unidadesMob.value)"
                   class="btn btn-sm btn-danger px-3" title="Agregar a lista">
@@ -187,7 +181,6 @@
     </div>
   </div>
 </section>
-<app-agregar-comidas #mealModal [isModal]="true"></app-agregar-comidas>
 
 <app-agregar-productos #productModal [showDelete]="true" (saved)="ngOnInit()">
 </app-agregar-productos>

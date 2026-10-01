@@ -46,6 +46,14 @@
                 </ul>
               </div>
             </div>
+            @if (currentMeal()) {
+            <div class="col-auto">
+              <button type="button" (click)="eliminarComidaCompleta()" class="btn-action danger"
+                title="Eliminar comida completa">
+                <fa-icon [icon]="faTrashAlt"></fa-icon>
+              </button>
+            </div>
+            }
           </div>
         </div>
       </div>
@@ -211,11 +219,15 @@
   </div>
 </section>
 <app-agregar-comidas #mealModal [isModal]="true" (saved)="obtenComidas(currentMeal())"></app-agregar-comidas>
+<app-nueva-comida [productos]="catalogo()" (saved)="onNuevaComidaGuardada($event)"></app-nueva-comida>
 
 <!-- FAB Container -->
 <div class="fab-container">
   <!-- Main Action Button (Standalone) -->
   <button class="fab-main" (click)="agregaComidas()" title="Agregar a Lista">
     <fa-icon [icon]="faCartPlus"></fa-icon>
+  </button>
+  <button class="fab-btn info fab-comida" (click)="nuevaComida()" title="Nueva comida">
+    <fa-icon [icon]="faUtensils"></fa-icon>
   </button>
 </div>

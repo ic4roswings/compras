@@ -56,6 +56,20 @@ export class ComidasService {
         catchError(this.handleError)
       );
 
+  // Varios productos a una misma comida en una sola petición (el backend la procesa en una transacción)
+  agregaProductosAComida = (comida: string, items: { producto: number; cantidad: number; unidades: string }[]): Observable<AgregaComida[]> => {
+    const payload: AgregaComida[] = items.map(i => ({
+      comida,
+      producto: i.producto,
+      cantidad: i.cantidad,
+      unidades: i.unidades
+    }));
+    return this.http.post<AgregaComida[]>(`${this.apiUrl}agregaComidas/`, payload)
+      .pipe(
+        catchError(this.handleError)
+      );
+  };
+
   actualizaProducto = (producto: ProductoI, id: Number): Observable<ProductoI> =>
     this.http.put<ProductoI>(`${this.apiUrl}productos/${id}`, producto)
       .pipe(
@@ -100,6 +114,14 @@ export class ComidasService {
 
   borraComidas(comida: string, id: number): Observable<any> {
     return this.http.delete(`${this.apiUrl}borraComidas/${comida}/${id}`)
+      .pipe(
+        catchError(this.handleError)
+      );
+  }
+
+  // Elimina la comida completa (todos sus productos)
+  borraComidaCompleta(comida: string): Observable<any> {
+    return this.http.delete(`${this.apiUrl}comidas/${encodeURIComponent(comida)}/`)
       .pipe(
         catchError(this.handleError)
       );

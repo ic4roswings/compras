@@ -14,7 +14,6 @@ import { CabeceraComponent } from '../cabecera/cabecera.component';
 import Swal from 'sweetalert2';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faPlus, faFilter, faSearch, faTimes, faChevronDown, faBolt, faUtensils, faEdit } from '@fortawesome/free-solid-svg-icons';
-import { AgregarComidasComponent } from '../agregar-comidas/agregar-comidas.component';
 import { AgregarProductosComponent } from '../agregar-productos/agregar-productos.component';
 
 @Component({
@@ -22,7 +21,7 @@ import { AgregarProductosComponent } from '../agregar-productos/agregar-producto
   templateUrl: './producto.component.html',
   styleUrls: ['./producto.component.css'],
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, CabeceraComponent, FontAwesomeModule, AgregarComidasComponent, AgregarProductosComponent]
+  imports: [CommonModule, FormsModule, RouterModule, CabeceraComponent, FontAwesomeModule, AgregarProductosComponent]
 })
 export class ProductoComponent implements OnInit {
 
@@ -110,15 +109,6 @@ export class ProductoComponent implements OnInit {
   }
 
 
-
-  @ViewChild('mealModal') mealModal: AgregarComidasComponent;
-
-  agregarComida(id: number) {
-    const producto = this.dataSubject.value.find(p => p.id === id);
-    if (producto) {
-      this.mealModal.open(id, producto.nombre);
-    }
-  }
 
   modiCantidad(id: number, cantidad: string, filtro: Donde) {
     const producto = this.dataSubject.value.find(p => p.id === id);

@@ -177,4 +177,4 @@
     <fa-icon [icon]="faShoppingCart"></fa-icon>
   </button>
 </div>
-<app-agregar-productos #productModal (saved)="onModalSave()"></app-agregar-productos>
+<app-agregar-productos #productModal (saved)="onModalSave()" (cancelled)="onModalCancel()"></app-agregar-productos>

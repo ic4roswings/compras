@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, OnInit, Output, ViewChild, Input } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, EventEmitter, OnInit, Output, ViewChild, Input } from '@angular/core';
 
 import { FormsModule, NgForm } from '@angular/forms';
 import { ProductoService } from '../service/producto.service';
@@ -18,6 +18,8 @@ export class AgregarProductosComponent implements OnInit {
     @ViewChild('closeModalBtn') closeModalBtn: ElementRef;
     @ViewChild('productModal') modalElement: ElementRef;
     @Output() saved = new EventEmitter<void>();
+    // Se emite cuando el modal se cierra sin guardar (X, Cancelar, etc.)
+    @Output() cancelled = new EventEmitter<void>();
     @Input() showDelete: boolean = false;
 
     isEditing: boolean = false;
@@ -37,8 +39,9 @@ export class AgregarProductosComponent implements OnInit {
     };
 
     private modal: any;
+    private guardado = false;
 
-    constructor(private productoService: ProductoService) { }
+    constructor(private productoService: ProductoService, private cdr: ChangeDetectorRef) { }
 
     ngOnInit(): void {
     }
@@ -66,9 +69,20 @@ export class AgregarProductosComponent implements OnInit {
             };
         }
 
+        // Sin zone.js, abrirlo desde fuera de un evento (p. ej. tras un SweetAlert) no dispara la
+        // detección de cambios: se fuerza para que el formulario muestre los datos desde la primera vez
+        this.cdr.detectChanges();
+
         if (!this.modal) {
             this.modal = new bootstrap.Modal(this.modalElement.nativeElement);
+            this.modalElement.nativeElement.addEventListener('hidden.bs.modal', () => {
+                if (!this.guardado) {
+                    this.cancelled.emit();
+                }
+                this.guardado = false;
+            });
         }
+        this.guardado = false;
         this.modal.show();
     }
 
@@ -93,6 +107,7 @@ export class AgregarProductosComponent implements OnInit {
                 if (result.isConfirmed) {
                     this.productoService.borraProducto(this.selectedProductId!).subscribe({
                         next: () => {
+                            this.guardado = true;
                             this.close();
                             this.saved.emit();
                             Swal.fire({
@@ -115,6 +130,11 @@ export class AgregarProductosComponent implements OnInit {
     guardaProducto(form: NgForm) {
         const values = form.value;
         this.urlError = '';
+
+        // Walmart guarda solo la ruta: si se pegó la URL completa, se le quita el dominio
+        if (values.donde === 'Walmart' && typeof values.URL === 'string') {
+            values.URL = values.URL.trim().replace(/^https?:\/\/(www\.)?super\.walmart\.com\.mx/i, '');
+        }
 
         // Strict Validation for Walmart
         if (values.donde === 'Walmart') {
@@ -140,6 +160,7 @@ export class AgregarProductosComponent implements OnInit {
 
         request.subscribe({
             next: (response) => {
+                this.guardado = true;
                 this.close();
 
                 Swal.fire({

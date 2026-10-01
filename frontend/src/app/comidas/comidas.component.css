@@ -198,4 +198,9 @@
     background: var(--primary);
     color: white;
     transform: translateX(5px);
-}
+}
+
+/* FAB de comida nueva: centrado respecto al botón principal de 65 px */
+.fab-comida {
+    margin-right: 10px;
+}

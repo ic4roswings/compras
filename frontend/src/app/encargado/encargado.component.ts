@@ -7,6 +7,8 @@ import { ListaService } from '../service/lista.service';
 import { ListaI } from '../interface/lista.interface';
 import { Donde } from '../enum/donde.enum';
 import { EncargoService } from '../service/encargo.service';
+import { ProductoService } from '../service/producto.service';
+import { ProductoI } from '../interface/producto.interface';
 import { CabeceraComponent } from '../cabecera/cabecera.component';
 import Swal from 'sweetalert2';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -25,6 +27,7 @@ export class EncargadoComponent implements OnInit {
   private listaService = inject(ListaService);
   private global = inject(GlobalService);
   private encargoService = inject(EncargoService);
+  private productoService = inject(ProductoService);
 
   // Icons
   faSearch = faSearch;
@@ -76,18 +79,22 @@ export class EncargadoComponent implements OnInit {
   // Walmart Sequence State
   private completados = new Set<number>();
   private omitidosEnCorrida = new Set<number>();
+  // Último producto cuyo link se abrió en esta corrida (para corregirlo sin esperar a que termine)
+  private ultimoAbierto: ListaI | null = null;
+  private reanudarTrasEditar = false;
 
   async ngOnInit(): Promise<void> {
     await this.global.checkTokens('encargado');
     this.fetchData();
   }
 
-  fetchData() {
+  fetchData(alTerminar?: () => void) {
     this.loading.set(true);
     this.listaService.encargado$.subscribe({
       next: (response) => {
         this.data.set(response);
         this.loading.set(false);
+        alTerminar?.();
       },
       error: (err) => {
         this.error.set('No se pudieron cargar los encargos.');
@@ -139,6 +146,7 @@ export class EncargadoComponent implements OnInit {
   async walmart(manual: boolean = false): Promise<void> {
     if (manual) {
       this.omitidosEnCorrida.clear();
+      this.ultimoAbierto = null;
     }
 
     if (await this.abrirModalEdicion()) {
@@ -170,7 +178,7 @@ export class EncargadoComponent implements OnInit {
       });
 
       if (result.isConfirmed) {
-        this.productModal.open(missingUrlItem.producto);
+        this.abrirEditorProducto(missingUrlItem.producto);
         return true;
       } else {
         this.omitidosEnCorrida.add(missingUrlItem.id);
@@ -202,19 +210,28 @@ export class EncargadoComponent implements OnInit {
     }
 
     for (const item of walmartItems) {
+      // El anterior se puede corregir desde aquí; no se ofrece si es el mismo producto que vuelve a salir
+      const anterior = this.ultimoAbierto && this.ultimoAbierto.id !== item.id ? this.ultimoAbierto : null;
+
       const result = await Swal.fire({
         title: `¿Agregar ${item.cantidad} ${item.unidades} de ${item.producto.nombre}?`,
         text: "Se abrirá la página de Walmart Super",
         icon: 'info',
         showCancelButton: true,
+        showDenyButton: !!anterior,
         confirmButtonColor: 'var(--primary)',
+        denyButtonColor: 'var(--tertiary)',
         cancelButtonColor: 'var(--secondary)',
         confirmButtonText: 'Sí, abrir link',
+        denyButtonText: anterior ? `Editar anterior: ${anterior.producto.nombre}` : '',
         cancelButtonText: 'Saltar / Siguiente'
       });
 
       if (result.isConfirmed) {
         this.abrirWalmartDirecto(item);
+      } else if (result.isDenied && anterior) {
+        this.editarAnterior(anterior);
+        return;
       } else if (result.dismiss === Swal.DismissReason.cancel) {
         this.omitidosEnCorrida.add(item.id);
         continue;
@@ -228,14 +245,47 @@ export class EncargadoComponent implements OnInit {
     if (item.producto.URL && item.producto.URL !== '-') {
       window.open('https://super.walmart.com.mx' + item.producto.URL, '_blank');
       this.completados.add(item.id);
+      this.ultimoAbierto = item;
     }
   }
 
+  // Abre el editor del producto recién abierto. No vuelve a la cola: al terminar (guarde o no),
+  // la secuencia continúa con el siguiente pendiente, porque ese producto ya se agregó a mano
+  private editarAnterior(item: ListaI) {
+    this.reanudarTrasEditar = true;
+    this.abrirEditorProducto(item.producto);
+  }
+
+  // El listado de encargos trae el producto incompleto (sin cantidad, unidades ni semanal/mensual/verificar):
+  // se pide completo antes de abrir el editor para no mostrar ni guardar datos a medias
+  private abrirEditorProducto(producto: ProductoI) {
+    this.productoService.producto(producto.id!).subscribe({
+      next: (completo) => this.productModal.open(completo),
+      error: () => {
+        Swal.fire('Error', 'No se pudo cargar el producto para editarlo.', 'error');
+        this.onModalCancel();
+      }
+    });
+  }
+
   async onModalSave() {
-    this.fetchData();
-    this.omitidosEnCorrida.clear();
-    // Re-check walmart after data is reloaded signal (using a timeout for simplicity as modal might take time)
-    setTimeout(() => this.walmart(), 500);
+    // Si se editó el anterior, los productos que se saltaron siguen saltados
+    if (this.reanudarTrasEditar) {
+      this.reanudarTrasEditar = false;
+    } else {
+      this.omitidosEnCorrida.clear();
+    }
+    // Continúa cuando ya llegaron los datos; la pausa deja terminar la animación de cierre del modal
+    this.fetchData(() => setTimeout(() => this.walmart(), 350));
+  }
+
+  // Modal cerrado sin guardar: si venía de "Editar anterior", se reanuda la secuencia donde iba
+  onModalCancel() {
+    if (!this.reanudarTrasEditar) {
+      return;
+    }
+    this.reanudarTrasEditar = false;
+    setTimeout(() => this.walmart(), 350);
   }
 
   abrirEditor(lista: ListaI) {

@@ -21,9 +21,9 @@ from .models_gastos import Meses, Operaciones, OperacionesHistorico
 from django.db.models import Sum, Count, Max
 from django.db import transaction
 import pytz
+import logging
 from . import services
-from .vector_service import get_vector_store, generate_vectorizer_text
-from langchain_core.documents import Document
+from .vector_service import get_vector_store, generate_vectorizer_text, sincronizar_vector_en_segundo_plano, sincronizar_vectores_en_segundo_plano, sincronizar_vectores, es_error_de_cuota, bloqueo_sincronizacion
 class LoginView(APIView):
     permission_classes = [AllowAny]
 
@@ -76,19 +76,11 @@ class ProductoListView(APIView):
         serializer = ProductoSerializer(data=request.data, many=True)
         if serializer.is_valid():
             productos = serializer.save()
-            
-            # Sincronización Vectorial
-            vector_store = get_vector_store()
-            docs = []
-            ids = []
-            for p in productos:
-                texto = generate_vectorizer_text(p)
-                if texto.strip():
-                    docs.append(Document(page_content=texto, metadata={"id_django": p.id}))
-                    ids.append(str(p.id))
-            if docs:
-                vector_store.add_documents(docs, ids=ids)
-                
+
+            # Sincronización vectorial en segundo plano, en un solo trabajo para todo el lote
+            textos = {p.id: generate_vectorizer_text(p) for p in productos}
+            sincronizar_vectores_en_segundo_plano({i: t for i, t in textos.items() if t.strip()})
+
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -183,17 +175,18 @@ class ProductoDetailView(APIView):
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
         serializer = ProductoSerializer(producto, data=request.data, partial=True)
-        if serializer.is_valid():
-            producto_actualizado = serializer.save()
-            
-            # Sincronización Vectorial
-            texto = generate_vectorizer_text(producto_actualizado)
-            if texto.strip():
-                vector_store = get_vector_store()
-                doc = Document(page_content=texto, metadata={"id_django": producto_actualizado.id})
-                vector_store.add_documents([doc], ids=[str(producto_actualizado.id)])
-                
-            return Response(serializer.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        producto_actualizado = serializer.save()
+
+        # Sincronización vectorial en segundo plano. Se pide en cada edición porque el trabajo compara
+        # primero con lo guardado: si el vector ya está al día no llama a OpenAI, y si había quedado
+        # desfasado (p. ej. por un fallo anterior) esta edición lo corrige.
+        texto = generate_vectorizer_text(producto_actualizado)
+        if texto.strip():
+            sincronizar_vector_en_segundo_plano(producto_actualizado.id, texto)
+
+        return Response(serializer.data)
 
     def delete(self, request, id, format=None):
         try:
@@ -455,6 +448,59 @@ class BorraComidaView(APIView):
         except Encargo.DoesNotExist:
             return Response(status=status.HTTP_400_BAD_REQUEST)
         comidas.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+logger = logging.getLogger(__name__)
+
+
+class VectoresEstadoView(APIView):
+    """Cuántos productos tienen su vector desfasado o faltante (lectura pura, sin costo de OpenAI)."""
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, format=None):
+        try:
+            r = sincronizar_vectores(solo_revisar=True)
+        except Exception:
+            logger.exception("No se pudo revisar el estado de los vectores")
+            return Response({'error': 'vector_db', 'detalle': 'No se pudo consultar la base vectorial.'},
+                            status=status.HTTP_503_SERVICE_UNAVAILABLE)
+        return Response({'total': r['total'], 'al_dia': r['al_dia'], 'desfasados': r['desfasados']})
+
+
+class VectoresSincronizarView(APIView):
+    """Sincronización incremental: calcula solo los vectores que faltan o cambiaron."""
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, format=None):
+        if not bloqueo_sincronizacion.acquire(blocking=False):
+            return Response({'error': 'en_curso', 'detalle': 'Ya hay una sincronización en curso.'},
+                            status=status.HTTP_409_CONFLICT)
+        try:
+            r = sincronizar_vectores()
+        except Exception as exc:
+            if es_error_de_cuota(exc):
+                return Response({
+                    'error': 'cuota_openai',
+                    'detalle': 'OpenAI rechazó la petición por falta de saldo o cuota agotada (exceso de pago). '
+                               'Revisa la facturación en platform.openai.com y vuelve a intentarlo.',
+                }, status=status.HTTP_402_PAYMENT_REQUIRED)
+            logger.exception("Falló la sincronización de vectores")
+            return Response({'error': 'sync', 'detalle': 'No se pudo completar la sincronización.'},
+                            status=status.HTTP_502_BAD_GATEWAY)
+        finally:
+            bloqueo_sincronizacion.release()
+        return Response({'sincronizados': r['sincronizados'], 'total': r['total']})
+
+
+class BorraComidaCompletaView(APIView):
+    """Elimina una comida completa: todos los productos que tiene asignados."""
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request, comida, format=None):
+        borrados, _ = Comidas.objects.filter(comida=comida).delete()
+        if borrados == 0:
+            return Response(status=status.HTTP_404_NOT_FOUND)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 

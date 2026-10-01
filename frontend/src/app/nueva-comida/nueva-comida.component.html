@@ -1,0 +1,88 @@
+<div class="modal fade" id="nuevaComidaModal" #comidaModal tabindex="-1" aria-hidden="true" data-bs-backdrop="static"
+  data-bs-keyboard="false">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content glass-modal border-0">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <fa-icon [icon]="faUtensils" class="me-2 text-primary"></fa-icon>
+          Nueva comida
+        </h5>
+        <button type="button" class="btn-close btn-close-white" (click)="close()" aria-label="Cerrar"></button>
+      </div>
+
+      <div class="modal-body p-4">
+        <!-- Nombre -->
+        <label class="form-label text-muted small uppercase" for="nombreComida">Nombre de la comida</label>
+        <input id="nombreComida" type="text" class="form-control modern-input mb-1" list="comidasExistentes"
+          maxlength="50" placeholder="Escribe una nueva o elige una existente" autocomplete="off"
+          [value]="nombre()" (input)="nombre.set($any($event.target).value)">
+        <datalist id="comidasExistentes">
+          @for (c of comidasExistentes(); track c) {
+          <option [value]="c"></option>
+          }
+        </datalist>
+        <div class="text-muted small mb-4">Si ya existe, los productos se suman a esa comida.</div>
+
+        <!-- Buscar producto -->
+        <label class="form-label text-muted small uppercase" for="buscaProducto">Agregar productos</label>
+        <div class="input-group">
+          <span class="input-group-text buscar-icono">
+            <fa-icon [icon]="faSearch"></fa-icon>
+          </span>
+          <input id="buscaProducto" type="text" class="form-control modern-input" placeholder="Buscar producto..."
+            autocomplete="off" [value]="busqueda()" (input)="busqueda.set($any($event.target).value)">
+        </div>
+
+        @if (sugerencias().length > 0) {
+        <div class="sugerencias">
+          @for (p of sugerencias(); track p.id) {
+          <button type="button" class="sugerencia" (click)="agregar(p)">
+            <span>{{ p.nombre }}</span>
+            <span class="badge-store" [attr.data-store]="p.donde">{{ p.donde }}</span>
+          </button>
+          }
+        </div>
+        } @else if (busqueda().trim() && productos().length > 0) {
+        <div class="text-muted small mt-2">Sin resultados (o ya están agregados).</div>
+        }
+
+        <!-- Agregados -->
+        <div class="mt-4">
+          <div class="text-muted small uppercase mb-2">Productos en la comida ({{ items().length }})</div>
+
+          @for (item of items(); track item.producto.id; let i = $index) {
+          <div class="item-comida">
+            <div class="item-nombre">{{ item.producto.nombre }}</div>
+            <input type="number" min="1" step="1" class="form-control modern-input item-cantidad"
+              [class.invalido]="!cantidadValida(item.cantidad)" [value]="item.cantidad"
+              (input)="cambiaCantidad(i, $any($event.target).value)" aria-label="Cantidad">
+            <select class="form-select modern-input item-unidad" [value]="item.unidades"
+              (change)="cambiaUnidades(i, $any($event.target).value)" aria-label="Unidad">
+              <option value="PZ">PZ</option>
+              <option value="KG">KG</option>
+              <option value="G">G</option>
+              <option value="Paquete">Paquete</option>
+            </select>
+            <button type="button" class="btn-quitar" (click)="quitar(i)" title="Quitar">
+              <fa-icon [icon]="faTrashAlt"></fa-icon>
+            </button>
+          </div>
+          } @empty {
+          <div class="text-muted small text-center py-3">Busca un producto para agregarlo.</div>
+          }
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn glass-btn flex-grow-1" (click)="close()">Cancelar</button>
+        <button type="button" class="btn modern-btn-primary flex-grow-1" [disabled]="!puedeGuardar() || guardando()"
+          (click)="guardar()">
+          @if (guardando()) {
+          <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+          }
+          Guardar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

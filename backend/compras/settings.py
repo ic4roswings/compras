@@ -31,11 +31,15 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
 ALLOWED_HOSTS = ['compras.icaroswings.com', 'ionic.icaroswings.com','backcompras.icaroswings.com']
+# Hosts internos que llaman al backend sin pasar por el dominio público (n8n, MCP), separados por comas.
+# Ej.: ALLOWED_HOSTS_EXTRA=192.168.100.99  (se compara solo el host, sin puerto)
+# Ojo: Django rechaza nombres con guion bajo (p. ej. "compras_backend"); ahí hay que usar la IP.
+ALLOWED_HOSTS_EXTRA = [h.strip() for h in os.getenv('ALLOWED_HOSTS_EXTRA', '').split(',') if h.strip()]
 if DEBUG:
     ALLOWED_HOSTS = ['*']
 else:
-    # In production, ensure we only allow the specific domains
-    ALLOWED_HOSTS = [host for host in ALLOWED_HOSTS if 'icaroswings' in host]
+    # In production, ensure we only allow the specific domains (más los internos declarados a propósito)
+    ALLOWED_HOSTS = [host for host in ALLOWED_HOSTS if 'icaroswings' in host] + ALLOWED_HOSTS_EXTRA
 
 
 # Application definition
